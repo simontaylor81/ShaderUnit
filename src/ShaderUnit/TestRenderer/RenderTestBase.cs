@@ -17,7 +17,7 @@ namespace ShaderUnit.TestRenderer
 
 		private Bitmap _imageResult;
 
-		private static readonly string _baseDir = Path.Combine(GlobalConfig.BaseDir, @"ShaderUnit\TestScripts");
+		private static readonly string _baseDir = Path.Combine(GlobalConfig.BaseDir, @"src\ShaderUnit\TestScripts");
 		private static readonly string _expectedResultDir = Path.Combine(_baseDir, "ExpectedResults");
 
 		[SetUp]

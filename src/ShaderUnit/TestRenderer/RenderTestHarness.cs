@@ -20,7 +20,7 @@ namespace ShaderUnit.TestRenderer
 		private readonly TestWorkspace _workspace;
 		private readonly SyrupRenderer _sr;
 
-		private static readonly string _baseDir = Path.Combine(GlobalConfig.BaseDir, @"ShaderUnit\TestScripts");
+		private static readonly string _baseDir = Path.Combine(GlobalConfig.BaseDir, @"src\ShaderUnit\TestScripts");
 
 		private static bool bLoggedDevice = false;
 
