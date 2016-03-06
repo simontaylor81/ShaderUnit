@@ -35,13 +35,13 @@ namespace SRPScripting
 		object CreateRenderTarget();
 
 		// Create a 2D texture of the given size and format, and fill it with the given data.
-		object CreateTexture2D(int width, int height, Format format, dynamic contents, bool generateMips = false);
+		IShaderResource CreateTexture2D(int width, int height, Format format, dynamic contents, bool generateMips = false);
 
 		// Create a structured buffer.
 		IBuffer CreateStructuredBuffer<T>(IEnumerable<T> contents, bool uav = false) where T : struct;
 
 		// Load a texture from a file.
-		object LoadTexture(string path, object generateMips = null);
+		IShaderResource LoadTexture(string path, object generateMips = null);
 
 		// Still unsure if this is the best way to go.
 		void SetFrameCallback(FrameCallback callback);

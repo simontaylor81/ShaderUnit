@@ -80,7 +80,7 @@ namespace SRPRendering
 		}
 
 		// Create a 2D texture of the given size and format, and fill it with the given data.
-		public object CreateTexture2D(int width, int height, Format format, dynamic contents, bool generateMips = false)
+		public IShaderResource CreateTexture2D(int width, int height, Format format, dynamic contents, bool generateMips = false)
 		{
 			throw new NotImplementedException("TODO: Dynamic texture generation");
 			//textures.Add(Texture.CreateFromScript(_device.Device, width, height, format, contents, generateMips));
@@ -88,7 +88,7 @@ namespace SRPRendering
 		}
 
 		// Load a texture from disk.
-		public object LoadTexture(string path, object generateMips = null)
+		public IShaderResource LoadTexture(string path, object generateMips = null)
 		{
 			var absPath = _workspace.GetAbsolutePath(path);
 
@@ -102,19 +102,7 @@ namespace SRPRendering
 				mipGenerationMode = MipGenerationMode.CreateOnly;
 			}
 
-			Texture texture;
-			try
-			{
-				texture = Texture.LoadFromFile(_device.Device, absPath, mipGenerationMode);
-			}
-			catch (FileNotFoundException ex)
-			{
-				throw new ShaderUnitException("Could not file texture file: " + absPath, ex);
-			}
-			catch (Exception ex)
-			{
-				throw new ShaderUnitException("Error loading texture file: " + absPath, ex);
-			}
+			var texture = Texture.LoadFromFile(_device.Device, absPath, mipGenerationMode);
 
 			// We want mip generation errors to be reported directly, so this is
 			// outside the above try-catch.
@@ -124,8 +112,7 @@ namespace SRPRendering
 				_mipGenerator.Generate(texture, generateMips as string);
 			}
 
-			textures.Add(texture);
-			return new TextureHandle(textures.Count - 1);
+			return AddResource(texture);
 		}
 
 		// Create a structured buffer.

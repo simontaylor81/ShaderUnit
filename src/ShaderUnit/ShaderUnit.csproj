@@ -107,6 +107,7 @@
     <Compile Include="ShaderTests\MyComputeShaderTest.cs" />
     <Compile Include="ShaderTests\MyPixelShaderTest.cs" />
     <Compile Include="ShaderTests\MyShaderUnitTest.cs" />
+    <Compile Include="ShaderTests\TextureTest.cs" />
     <Compile Include="TestRenderer\FermiumReporter.cs" />
     <Compile Include="TestRenderer\FileSystemReporter.cs" />
     <Compile Include="TestRenderer\HlslTestHarness.cs" />
@@ -124,7 +125,6 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="TestScripts\tests.json" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
@@ -144,10 +144,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
-  <ItemGroup>
-    <Content Include="TestScripts\Clear.py" />
-    <Content Include="TestScripts\Null.py" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
