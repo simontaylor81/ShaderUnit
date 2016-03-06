@@ -15,16 +15,18 @@ namespace ShaderUnit.ShaderTests
 		[Test]
 		public void WriteToUAV()
 		{
-			var cs = RenderHarness.RenderInterface.CompileShader("ComputeTest.hlsl", "WriteToUAV", "cs_5_0");
+			var harness = CreateComputeHarness();
+			var cs = harness.RenderInterface.CompileShader("ComputeTest.hlsl", "WriteToUAV", "cs_5_0");
 
-			var result = RenderHarness.DispatchToBuffer<float>(cs, "OutUAV", Tuple.Create(16, 1, 1), Tuple.Create(16, 1, 1));
+			var result = harness.DispatchToBuffer<float>(cs, "OutUAV", Tuple.Create(16, 1, 1), Tuple.Create(16, 1, 1));
 			Assert.That(result, Is.EqualTo(Enumerable.Range(0, 16).Select(i => 2.0f * i + 10.0f)));
 		}
 
 		[Test]
 		public void ReadFromBuffer()
 		{
-			var ri = RenderHarness.RenderInterface;
+			var harness = CreateComputeHarness();
+			var ri = harness.RenderInterface;
 
 			var cs = ri.CompileShader("ComputeTest.hlsl", "ReadFromBuffer", "cs_5_0");
 
@@ -33,14 +35,15 @@ namespace ShaderUnit.ShaderTests
 			var inputBuffer = ri.CreateStructuredBuffer(input);
 			cs.FindResourceVariable("InBuffer").Set(inputBuffer);
 
-			var result = RenderHarness.DispatchToBuffer<float>(cs, "OutUAV", Tuple.Create(16, 1, 1), Tuple.Create(16, 1, 1));
+			var result = harness.DispatchToBuffer<float>(cs, "OutUAV", Tuple.Create(16, 1, 1), Tuple.Create(16, 1, 1));
 			Assert.That(result, Is.EqualTo(input.Select(x => 2.0f * x)));
 		}
 
 		[Test]
 		public void ReadFromComplexBuffer()
 		{
-			var ri = RenderHarness.RenderInterface;
+			var harness = CreateComputeHarness();
+			var ri = harness.RenderInterface;
 
 			var cs = ri.CompileShader("ComputeTest.hlsl", "ReadFromComplexBuffer", "cs_5_0");
 
@@ -53,7 +56,7 @@ namespace ShaderUnit.ShaderTests
 			var inputBuffer = ri.CreateStructuredBuffer(input);
 			cs.FindResourceVariable("InBufferComplex").Set(inputBuffer);
 
-			var result = RenderHarness.DispatchToBuffer<float>(cs, "OutUAV", Tuple.Create(16, 1, 1), Tuple.Create(16, 1, 1));
+			var result = harness.DispatchToBuffer<float>(cs, "OutUAV", Tuple.Create(16, 1, 1), Tuple.Create(16, 1, 1));
 			Assert.That(result, Is.EqualTo(input.Select(x => x.Vec2.X + x.Vec2.Y + x.Uint)));
 		}
 

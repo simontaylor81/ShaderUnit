@@ -14,14 +14,15 @@ namespace ShaderUnit.ShaderTests
 		[Test]
 		public void MyTest()
 		{
-			var ri = RenderHarness.RenderInterface;
+			var harness = CreateRenderHarness(64, 64);
+			var ri = harness.RenderInterface;
 
 			var vs = ri.CompileShader("ConstantColour.hlsl", "VS", "vs_4_0");
 			var ps = ri.CompileShader("ConstantColour.hlsl", "PS", "ps_4_0");
 
 			ps.FindConstantVariable("Colour").Set(new Vector4(1, 0, 0, 1));
 
-			var result = RenderHarness.RenderFullscreenImage(vs, ps);
+			var result = harness.RenderFullscreenImage(vs, ps);
 			CompareImage(result);
 		}
 
@@ -29,14 +30,15 @@ namespace ShaderUnit.ShaderTests
 		[TestCase(0, 0, 1, 1)]
 		public void MyParameterisedTest(float r, float g, float b, float a)
 		{
-			var ri = RenderHarness.RenderInterface;
+			var harness = CreateRenderHarness(64, 64);
+			var ri = harness.RenderInterface;
 
 			var vs = ri.CompileShader("ConstantColour.hlsl", "VS", "vs_4_0");
 			var ps = ri.CompileShader("ConstantColour.hlsl", "PS", "ps_4_0");
 
 			ps.FindConstantVariable("Colour").Set(new Vector4(r, g, b, a));
 
-			var result = RenderHarness.RenderImage(context =>
+			var result = harness.RenderImage(context =>
 			{
 				context.DrawFullscreenQuad(vs, ps);
 			});

@@ -28,9 +28,9 @@ namespace SRPCommon.Util
 			_disposables = new List<IDisposable>(disposables);
 		}
 
-		public void Add(IDisposable item)
+		public void Add(params IDisposable[] items)
 		{
-			_disposables.Add(item);
+			_disposables.AddRange(items);
 		}
 
 		public void Dispose()

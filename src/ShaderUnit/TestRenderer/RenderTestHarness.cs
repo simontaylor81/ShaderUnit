@@ -12,7 +12,23 @@ using SRPScripting.Shader;
 
 namespace ShaderUnit.TestRenderer
 {
-	public class RenderTestHarness : IDisposable
+	public interface IComputeHarness
+	{
+		IRenderInterface RenderInterface { get; }
+
+		void Dispatch(FrameCallback callback);
+		IEnumerable<T> DispatchToBuffer<T>(IShader cs, string outBufferVariable, int size, int shaderNumThreads) where T : struct;
+		IEnumerable<T> DispatchToBuffer<T>(IShader cs, string outBufferVariable, Tuple<int, int, int> size, Tuple<int, int, int> shaderNumThreads) where T : struct;
+		T ExecuteShaderFunction<T>(string shaderFile, string function, params object[] parameters) where T : struct;
+	}
+
+	public interface IRenderHarness : IComputeHarness
+	{
+		Bitmap RenderImage(FrameCallback callback);
+		Bitmap RenderFullscreenImage(IShader vs, IShader ps);
+	}
+
+	class RenderTestHarness : IRenderHarness, IDisposable
 	{
 		private readonly TestRenderer _renderer;
 		private readonly TestWorkspace _workspace;
@@ -24,9 +40,9 @@ namespace ShaderUnit.TestRenderer
 
 		public IRenderInterface RenderInterface => _src;
 
-		public RenderTestHarness()
+		public RenderTestHarness(TestRenderer renderer)
 		{
-			_renderer = new TestRenderer(64, 64);
+			_renderer = renderer;
 			_workspace = new TestWorkspace(_baseDir);
 
 			// Minor hack to avoid spamming the log with device names.

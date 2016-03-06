@@ -13,7 +13,8 @@ namespace ShaderUnit.ShaderTests
 		[Test]
 		public void TextureFromFile()
 		{
-			var ri = RenderHarness.RenderInterface;
+			var harness = CreateRenderHarness(64, 64);
+			var ri = harness.RenderInterface;
 
 			var vs = ri.CompileShader("FullscreenTexture.hlsl", "FullscreenTexture_VS", "vs_4_0");
 			var ps = ri.CompileShader("FullscreenTexture.hlsl", "FullscreenTexture_PS", "ps_4_0");
@@ -22,14 +23,15 @@ namespace ShaderUnit.ShaderTests
 
 			ps.FindResourceVariable("tex").Set(texture);
 
-			var result = RenderHarness.RenderFullscreenImage(vs, ps);
+			var result = harness.RenderFullscreenImage(vs, ps);
 			CompareImage(result);
 		}
 
 		[Test]
 		public void GeneratedTexture()
 		{
-			var ri = RenderHarness.RenderInterface;
+			var harness = CreateRenderHarness(64, 64);
+			var ri = harness.RenderInterface;
 
 			var vs = ri.CompileShader("FullscreenTexture.hlsl", "FullscreenTexture_VS", "vs_4_0");
 			var ps = ri.CompileShader("FullscreenTexture.hlsl", "FullscreenTexture_PS", "ps_4_0");
@@ -43,7 +45,7 @@ namespace ShaderUnit.ShaderTests
 
 			ps.FindResourceVariable("tex").Set(texture);
 
-			var result = RenderHarness.RenderFullscreenImage(vs, ps);
+			var result = harness.RenderFullscreenImage(vs, ps);
 			CompareImage(result);
 		}
 

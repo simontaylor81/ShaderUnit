@@ -2,12 +2,12 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
-using System.Reactive.Disposables;
 using System.Runtime.InteropServices;
 using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
+using SRPCommon.Util;
 using SRPRendering;
 using SRPRendering.Resources;
 using SRPScripting;
@@ -28,14 +28,29 @@ namespace ShaderUnit.TestRenderer
 
 		public RenderDevice Device => device;
 
-		public TestRenderer(int width, int height)
+		// Create test renderer for compute only.
+		public TestRenderer()
 		{
-			_width = width;
-			_height = height;
+			_width = 0;
+			_height = 0;
 
 			// Create a device without a swap chain for headless rendering.
 			// Use WARP software rasterizer to avoid per-GPU differences.
 			device = new RenderDevice(useWarp: true);
+
+			disposables = new CompositeDisposable(device);
+		}
+
+		public TestRenderer(int width, int height)
+			: this()
+		{
+			if (width <= 0 || height <= 0)
+			{
+				throw new ArgumentException("width and height must be greater than 0");
+			}
+
+			_width = width;
+			_height = height;
 
 			// Create a render target to act as the back buffer.
 			var rtDesc = new Texture2DDescription()
@@ -64,7 +79,7 @@ namespace ShaderUnit.TestRenderer
 			// Create a depth buffer.
 			depthBuffer = new DepthBuffer(device.Device, _width, _height);
 
-			disposables = new CompositeDisposable(device, renderTarget, renderTargetTexture, depthBuffer, stagingTexture);
+			disposables.Add(device, renderTarget, renderTargetTexture, depthBuffer, stagingTexture);
 		}
 
 		public void Dispose()
@@ -74,6 +89,20 @@ namespace ShaderUnit.TestRenderer
 
 		public Bitmap Render(ScriptRenderControl src, FrameCallback callback)
 		{
+			Trace.Assert(src != null);
+			if (_width == 0)
+			{
+				throw new ShaderUnitException("Attempting to render on compute-only context.");
+			}
+
+			var context = device.Device.ImmediateContext;
+
+			// The SRC should clear the render target, so clear to a nice garish magenta so we detect if it doesn't.
+			context.ClearRenderTargetView(renderTarget, new RawColor4(1.0f, 0.0f, 1.0f, 1.0f));
+
+			// Clear depth buffer to ensure independence of tests.
+			context.ClearDepthStencilView(depthBuffer.DSV, DepthStencilClearFlags.Depth, 1.0f, 0);
+
 			Dispatch(src, callback);
 
 			// Read back the render target and convert to bitmap.
@@ -84,14 +113,6 @@ namespace ShaderUnit.TestRenderer
 		public void Dispatch(ScriptRenderControl src, FrameCallback callback)
 		{
 			Trace.Assert(src != null);
-
-			var context = device.Device.ImmediateContext;
-
-			// The SRC should clear the render target, so clear to a nice garish magenta so we detect if it doesn't.
-			context.ClearRenderTargetView(renderTarget, new RawColor4(1.0f, 0.0f, 1.0f, 1.0f));
-
-			// Clear back and depth buffers to ensure independence of tests.
-			context.ClearDepthStencilView(depthBuffer.DSV, DepthStencilClearFlags.Depth, 1.0f, 0);
 
 			// Construct view info object.
 			// TODO: What about the camera?
@@ -107,8 +128,7 @@ namespace ShaderUnit.TestRenderer
 				depthBuffer
 				);
 
-			src.Render(context, viewInfo, callback);
-			context.Flush();
+			src.Render(device.Device.ImmediateContext, viewInfo, callback);
 		}
 
 		// Read contents of backbuffer to into bitmap.

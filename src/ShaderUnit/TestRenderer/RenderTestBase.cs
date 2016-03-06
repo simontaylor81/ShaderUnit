@@ -13,9 +13,8 @@ namespace ShaderUnit.TestRenderer
 {
 	public class RenderTestBase
 	{
-		protected RenderTestHarness RenderHarness { get; private set; }
-
 		private Bitmap _imageResult;
+		private RenderTestHarness _harness;
 
 		private static readonly string _baseDir = Path.Combine(GlobalConfig.BaseDir, @"src\ShaderUnit\TestScripts");	// TODO!
 		private static readonly string _expectedResultDir = Path.Combine(_baseDir, "ExpectedResults");
@@ -23,15 +22,14 @@ namespace ShaderUnit.TestRenderer
 		[SetUp]
 		public void Setup()
 		{
-			RenderHarness = new RenderTestHarness();
 		}
 
 		[TearDown]
 		public async Task TearDown()
 		{
 			// Dispose the test harness.
-			RenderHarness.Dispose();
-			RenderHarness = null;
+			_harness?.Dispose();
+			_harness = null;
 
 			// Report result.
 			var context = TestContext.CurrentContext;
@@ -40,6 +38,26 @@ namespace ShaderUnit.TestRenderer
 
 			// Clear state ready for the next run (NUnit re-uses class instances).
 			_imageResult = null;
+		}
+
+		protected IComputeHarness CreateComputeHarness()
+		{
+			if (_harness != null)
+			{
+				throw new ShaderUnitException("Can only create one harness per test run.");
+			}
+			_harness = new RenderTestHarness(new TestRenderer());
+			return _harness;
+		}
+
+		protected IRenderHarness CreateRenderHarness(int width, int height)
+		{
+			if (_harness != null)
+			{
+				throw new ShaderUnitException("Can only create one harness per test run.");
+			}
+			_harness = new RenderTestHarness(new TestRenderer(width, height));
+			return _harness;
 		}
 
 		protected void CompareImage(Bitmap result)
