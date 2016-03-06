@@ -106,7 +106,6 @@
     <Compile Include="ScriptRenderContext.cs" />
     <Compile Include="Shaders\ShaderSamplerVariable.cs" />
     <Compile Include="Shaders\ShaderUavVariable.cs" />
-    <Compile Include="SyrupRenderer.cs" />
     <Compile Include="ScriptRenderControl.cs" />
     <Compile Include="Shaders\Shader.cs" />
     <Compile Include="Shaders\ShaderResourceVariable.cs" />

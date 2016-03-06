@@ -16,13 +16,13 @@ namespace ShaderUnit.TestRenderer
 	{
 		private readonly TestRenderer _renderer;
 		private readonly TestWorkspace _workspace;
-		private readonly SyrupRenderer _sr;
+		private readonly ScriptRenderControl _src;
 
 		private static readonly string _baseDir = Path.Combine(GlobalConfig.BaseDir, @"src\ShaderUnit\TestScripts");
 
 		private static bool bLoggedDevice = false;
 
-		public IRenderInterface RenderInterface => _sr.ScriptInterface;
+		public IRenderInterface RenderInterface => _src;
 
 		public RenderTestHarness()
 		{
@@ -40,19 +40,19 @@ namespace ShaderUnit.TestRenderer
 			}
 
 			// Create syrup renderer to drive the rendering.
-			_sr = new SyrupRenderer(_workspace, _renderer.Device);
+			_src = new ScriptRenderControl(_workspace, _renderer.Device);
 		}
 
 		public void Dispose()
 		{
 			_renderer.Dispose();
-			_sr.Dispose();
+			_src.Dispose();
 		}
 
 		public Bitmap RenderImage()
 		{
 			// Render stuff and return the resulting image.
-			return _renderer.Render(_sr);
+			return _renderer.Render(_src);
 		}
 
 		// Helper for the common case of rendering a fullscreen quad.
@@ -69,7 +69,7 @@ namespace ShaderUnit.TestRenderer
 		public void Dispatch()
 		{
 			// Run the renderer to trigger compute shaders.
-			_renderer.Dispatch(_sr);
+			_renderer.Dispatch(_src);
 		}
 
 		// Simple wrapper for the common 1D case.

@@ -71,18 +71,18 @@ namespace ShaderUnit.TestRenderer
 			disposables.Dispose();
 		}
 
-		public Bitmap Render(SyrupRenderer sr)
+		public Bitmap Render(ScriptRenderControl src)
 		{
-			Dispatch(sr);
+			Dispatch(src);
 
 			// Read back the render target and convert to bitmap.
 			return ReadBackBufferBitmap();
 		}
 
 		// Basically the same as Render, but doesn't read back the backbuffer contents.
-		public void Dispatch(SyrupRenderer sr)
+		public void Dispatch(ScriptRenderControl src)
 		{
-			Trace.Assert(sr != null);
+			Trace.Assert(src != null);
 
 			var context = device.Device.ImmediateContext;
 
@@ -106,7 +106,7 @@ namespace ShaderUnit.TestRenderer
 				depthBuffer
 				);
 
-			sr.Render(context, viewInfo);
+			src.Render(context, viewInfo);
 			context.Flush();
 		}
 

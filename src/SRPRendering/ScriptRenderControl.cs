@@ -14,7 +14,7 @@ using SRPScripting;
 namespace SRPRendering
 {
 	// Class that takes commands from the script and controls the rendering.
-	class ScriptRenderControl : IDisposable, IRenderInterface
+	public class ScriptRenderControl : IDisposable, IRenderInterface
 	{
 		public ScriptRenderControl(IWorkspace workspace, RenderDevice device)
 		{
