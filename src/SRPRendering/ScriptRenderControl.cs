@@ -80,11 +80,10 @@ namespace SRPRendering
 		}
 
 		// Create a 2D texture of the given size and format, and fill it with the given data.
-		public IShaderResource CreateTexture2D(int width, int height, Format format, dynamic contents, bool generateMips = false)
+		public IShaderResource CreateTexture2D<T>(int width, int height, Format format, IEnumerable<T> contents, bool generateMips = false) where T : struct
 		{
-			throw new NotImplementedException("TODO: Dynamic texture generation");
-			//textures.Add(Texture.CreateFromScript(_device.Device, width, height, format, contents, generateMips));
-			//return new TextureHandle(textures.Count - 1);
+			var mipGenerationMode = generateMips ? MipGenerationMode.Full : MipGenerationMode.None;
+			return AddResource(Texture.Create(_device.Device, width, height, format, contents, mipGenerationMode));
 		}
 
 		// Load a texture from disk.

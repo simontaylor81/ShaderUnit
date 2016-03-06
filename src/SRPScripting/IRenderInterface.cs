@@ -35,7 +35,7 @@ namespace SRPScripting
 		object CreateRenderTarget();
 
 		// Create a 2D texture of the given size and format, and fill it with the given data.
-		IShaderResource CreateTexture2D(int width, int height, Format format, dynamic contents, bool generateMips = false);
+		IShaderResource CreateTexture2D<T>(int width, int height, Format format, IEnumerable<T> contents, bool generateMips = false) where T : struct;
 
 		// Create a structured buffer.
 		IBuffer CreateStructuredBuffer<T>(IEnumerable<T> contents, bool uav = false) where T : struct;

@@ -117,33 +117,12 @@ namespace SRPRendering
 		// Create a texture with a solid colour.
 		private Texture CreateConstantColourTexture(Device device, Color colour, bool sRGB = true)
 		{
+			// Convert BGRA colour to RGBA.
+			var rgba = Color.FromArgb(colour.A, colour.B, colour.G, colour.R).ToArgb();
+
 			// Make a 1x1 texture.
-			var description = new Texture2DDescription()
-			{
-				Width = 1,
-				Height = 1,
-				Format = sRGB ? SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb : SharpDX.DXGI.Format.R8G8B8A8_UNorm,
-				MipLevels = 1,
-				SampleDescription = new SharpDX.DXGI.SampleDescription() { Count = 1 },
-				ArraySize = 1,
-				BindFlags = BindFlags.ShaderResource,
-				CpuAccessFlags = CpuAccessFlags.None,
-				Usage = ResourceUsage.Default
-			};
-
-			// Initilise with the constant colour.
-			using (var dataStream = new[] { colour.R, colour.G, colour.B, colour.A }.ToDataStream())
-			{
-				var dataRect = new SharpDX.DataRectangle(dataStream.DataPointer, 4);
-
-				// Create the texture resource.
-				var texture2D = new Texture2D(device, description, dataRect);
-
-				// Create the shader resource view.
-				var srv = new ShaderResourceView(device, texture2D);
-
-				return new Texture(texture2D, srv);
-			}
+			var format = sRGB ? SRPScripting.Format.R8G8B8A8_UNorm_SRgb : SRPScripting.Format.R8G8B8A8_UNorm;
+			return Texture.Create(device, 1, 1, format, new[] { rgba }, MipGenerationMode.None);
 		}
 	}
 }

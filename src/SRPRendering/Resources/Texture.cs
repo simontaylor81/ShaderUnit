@@ -9,6 +9,7 @@ using SharpDX;
 using SRPScripting;
 using SRPCommon.Util;
 using DirectXTexNet;
+using System.Runtime.InteropServices;
 
 namespace SRPRendering.Resources
 {
@@ -27,10 +28,21 @@ namespace SRPRendering.Resources
 		public UnorderedAccessView UAV { get { throw new NotImplementedException("TODO: Texture UAVs"); } }
 
 		// Simple constructor taking a texture and shader resource view.
-		public Texture(Texture2D texture2D, ShaderResourceView srv)
+		public Texture(Device device, IScratchImage image, MipGenerationMode mipGenerationMode)
 		{
-			Texture2D = texture2D;
-			SRV = srv;
+			if (mipGenerationMode == MipGenerationMode.Full)
+			{
+				image.GenerateMipMaps();
+			}
+			else if (mipGenerationMode == MipGenerationMode.CreateOnly)
+			{
+				image.CreateEmptyMipChain();
+			}
+
+			Texture2D = new Texture2D(image.CreateTexture(device.NativePointer));
+
+			// Create the SRV.
+			SRV = new ShaderResourceView(device, Texture2D);
 		}
 
 		public void Dispose()
@@ -51,29 +63,25 @@ namespace SRPRendering.Resources
 				// Load the texture itself using DirectXTex.
 				var image = LoadImage(filename);
 
-				if (mipGenerationMode == MipGenerationMode.Full)
-				{
-					image.GenerateMipMaps();
-				}
-				else if (mipGenerationMode == MipGenerationMode.CreateOnly)
-				{
-					image.CreateEmptyMipChain();
-				}
-
-				var texture2D = new Texture2D(image.CreateTexture(device.NativePointer));
-
-				//stopwatch.Stop();
-				//Console.WriteLine("Loading {0} took {1} ms.", System.IO.Path.GetFileName(filename), stopwatch.ElapsedMilliseconds);
-
-				// Create the SRV.
-				var srv = new ShaderResourceView(device, texture2D);
-
-				return new Texture(texture2D, srv);
+				return new Texture(device, image, mipGenerationMode);
 			}
 			catch (Exception ex)
 			{
 				throw new ShaderUnitException(string.Format("Failed to load texture file {0} Error code: 0x{1:x8}", filename, ex.HResult), ex);
 			}
+		}
+
+		// Create with given contents.
+		public static Texture Create<T>(Device device, int width, int height, Format format, IEnumerable<T> contents, MipGenerationMode mipGenerationMode) where T : struct
+		{
+			if (format.Size() != Marshal.SizeOf<T>())
+			{
+				throw new ShaderUnitException($"Data of type {typeof(T).ToString()} is not suitable for texture format {format.ToString()}.");
+			}
+			var stream = contents.Take(width * height).ToDataStream();
+
+			var image = DirectXTex.Create2D(stream.DataPointer, format.Size() * width, width, height, (uint)format.ToDXGI());
+			return new Texture(device, image, mipGenerationMode);
 		}
 
 		private static IScratchImage LoadImage(string filename)
