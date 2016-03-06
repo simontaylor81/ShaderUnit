@@ -163,7 +163,6 @@
     <Compile Include="SyrupRenderer.cs" />
     <Compile Include="ScriptRenderControl.cs" />
     <Compile Include="Shader.cs" />
-    <Compile Include="ShaderCache.cs" />
     <Compile Include="ShaderResourceVariable.cs" />
     <Compile Include="ShaderResourceVariableBind.cs" />
     <Compile Include="ShaderConstantVariable.cs" />

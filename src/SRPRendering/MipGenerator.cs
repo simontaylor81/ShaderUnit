@@ -33,7 +33,8 @@ namespace SRPRendering
 			_workspace = workspace;
 
 			// Compile vertex shader.
-			_vertexShader = device.GlobalResources.ShaderCache.GetShader(
+			_vertexShader = Shader.CompileFromFile(
+				_device.Device,
 				RenderUtils.GetShaderFilename("GenMipsVS.hlsl"),
 				"Main",
 				"vs_4_0",
@@ -83,8 +84,9 @@ namespace SRPRendering
 			};
 
 			// Compile pixel shader.
-			var pixelShader = _device.GlobalResources.ShaderCache.GetShader(
-				RenderUtils.GetShaderFilename("GenMipsPS.hlsl"), "Main", "ps_4_0", includeHandler, GetDefines(isCubemap));
+			var pixelShader = Shader.CompileFromFile(
+				_device.Device, RenderUtils.GetShaderFilename("GenMipsPS.hlsl"), "Main", "ps_4_0", includeHandler, GetDefines(isCubemap));
+
 			var destMipVariable = pixelShader.FindConstantVariable("DestMip");
 			var arraySliceVariable = pixelShader.FindConstantVariable("ArraySlice");
 

@@ -51,8 +51,7 @@ namespace SRPRendering
 			if (!File.Exists(path))
 				throw new ShaderUnitException("Shader file " + filename + " not found in project.");
 
-			// TODO: Does shader caching make any sense in the unit testing context?
-			return AddResource(_device.GlobalResources.ShaderCache.GetShader(
+			return AddResource(Shader.CompileFromFile(_device.Device,
 				path, entryPoint, profile, FindShader, ConvertDefines(defines)));
 		}
 
