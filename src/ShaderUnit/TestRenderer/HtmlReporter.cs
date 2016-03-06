@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Reactive.Disposables;
 
 namespace ShaderUnit.TestRenderer
 {
@@ -114,7 +113,24 @@ namespace ShaderUnit.TestRenderer
 		private IDisposable WriteTag(TextWriter writer, string tag)
 		{
 			writer.WriteLine($"<{tag}>");
-			return Disposable.Create(() => writer.WriteLine($"</{tag}>"));
+			return new TagCloser(writer, tag);
+		}
+
+		private class TagCloser : IDisposable
+		{
+			private readonly string _tag;
+			private readonly TextWriter _writer;
+
+			public TagCloser(TextWriter writer, string tag)
+			{
+				_writer = writer;
+				_tag = tag;
+			}
+
+			public void Dispose()
+			{
+				_writer.WriteLine($"</{_tag}>");
+			}
 		}
 	}
 }
