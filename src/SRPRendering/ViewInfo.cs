@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using SharpDX.Direct3D11;
+using SRPRendering.Resources;
 
 namespace SRPRendering
 {

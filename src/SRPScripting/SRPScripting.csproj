@@ -49,6 +49,7 @@
     <Compile Include="IBuffer.cs" />
     <Compile Include="IRenderContext.cs" />
     <Compile Include="IRenderInterface.cs" />
+    <Compile Include="IShaderResource.cs" />
     <Compile Include="Shader\IShaderConstantVariable.cs" />
     <Compile Include="Shader\IShaderUavVariable.cs" />
     <Compile Include="Shader\IShader.cs" />

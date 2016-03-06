@@ -17,17 +17,17 @@ namespace SRPRendering
 	{
 		public string Name { get; }
 
-		public UnorderedAccessView UAV { get; set; }
+		private ID3DShaderResource _resource;
 
-		public void Set(IBuffer buffer)
+		public void Set(IShaderResource iresource)
 		{
-			var handle = buffer as BufferHandle;
-			if (buffer == null)
+			var resource = iresource as ID3DShaderResource;
+			if (iresource == null)
 			{
 				throw new ShaderUnitException("Invalid buffer for UAV");
 			}
 
-			UAV = handle.Buffer.UAV;
+			_resource = resource;
 		}
 
 		public void SetToDevice(DeviceContext context)
@@ -38,7 +38,7 @@ namespace SRPRendering
 				throw new ShaderUnitException("UAVs are only supported for compute shaders.");
 			}
 
-			context.ComputeShader.SetUnorderedAccessView(_slot, UAV);
+			context.ComputeShader.SetUnorderedAccessView(_slot, _resource.UAV);
 		}
 
 		public ShaderUavVariable(InputBindingDescription desc, ShaderFrequency shaderFrequency)

@@ -9,6 +9,7 @@ using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
 using SRPRendering;
+using SRPRendering.Resources;
 
 namespace ShaderUnit.TestRenderer
 {

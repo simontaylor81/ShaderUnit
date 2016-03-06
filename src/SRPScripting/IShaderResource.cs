@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace SRPScripting
 {
-	// A handle to a D3D Buffer
-	public interface IBuffer : IShaderResource
+	// A resource that can be bound to a shader (texture or buffer, basically).
+	public interface IShaderResource
 	{
-		IEnumerable<T> GetContents<T>() where T : struct;
 	}
 }

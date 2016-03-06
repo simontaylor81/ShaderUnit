@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using SharpDX.Direct3D11;
 using SRPCommon.Util;
 using System.Reactive.Disposables;
+using SRPRendering.Resources;
 
 namespace SRPRendering
 {

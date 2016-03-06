@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
 using SRPCommon.Util;
+using SRPRendering.Resources;
+using SRPScripting;
 using SRPScripting.Shader;
 
 namespace SRPRendering
@@ -15,14 +17,21 @@ namespace SRPRendering
 	{
 		// IShaderVariable interface.
 		public string Name { get; }
-		public ShaderResourceView Resource { get; set; }
 
-		public void Set(object value)
+		public ID3DShaderResource Resource { get; set; }
+
+		public void Set(IShaderResource iresource)
 		{
-			throw new NotImplementedException("TODO: Shader resource abstraction");
+			var resource = iresource as ID3DShaderResource;
+			if (iresource == null)
+			{
+				throw new ShaderUnitException("Invalid buffer for UAV");
+			}
+
+			Binding = new DirectShaderResourceVariableBinding(resource);
 		}
 
-		public void BindToMaterial(string materialParam, object fallback = null)
+		public void BindToMaterial(string materialParam, IShaderResource fallback = null)
 		{
 			if (fallback != null)
 			{
@@ -30,6 +39,8 @@ namespace SRPRendering
 			}
 			Binding = new MaterialShaderResourceVariableBinding(materialParam, null);
 		}
+
+		// TODO: Render target & depth buffer bindings.
 
 		private IShaderResourceVariableBinding _binding;
 		public IShaderResourceVariableBinding Binding
@@ -50,15 +61,15 @@ namespace SRPRendering
 			switch (shaderFrequency)
 			{
 				case ShaderFrequency.Vertex:
-					context.VertexShader.SetShaderResource(slot, Resource);
+					context.VertexShader.SetShaderResource(slot, Resource.SRV);
 					break;
 
 				case ShaderFrequency.Pixel:
-					context.PixelShader.SetShaderResource(slot, Resource);
+					context.PixelShader.SetShaderResource(slot, Resource.SRV);
 					break;
 
 				case ShaderFrequency.Compute:
-					context.ComputeShader.SetShaderResource(slot, Resource);
+					context.ComputeShader.SetShaderResource(slot, Resource.SRV);
 					break;
 			}
 		}

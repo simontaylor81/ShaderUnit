@@ -17,6 +17,7 @@ using BlendState = SRPScripting.BlendState;
 using SharpDX.Mathematics.Interop;
 using SharpDX.Direct3D;
 using SRPCommon.Util;
+using SRPRendering.Resources;
 
 namespace SRPRendering
 {

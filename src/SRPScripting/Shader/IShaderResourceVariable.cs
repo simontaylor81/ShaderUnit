@@ -9,9 +9,8 @@ namespace SRPScripting.Shader
 	// Shader resource (texture, buffer, etc.) variable.
 	public interface IShaderResourceVariable : IShaderVariable
 	{
-		// TODO: Shader resource abstraction.
-		void Set(object value);
+		void Set(IShaderResource value);
 
-		void BindToMaterial(string materialParam, object fallback = null);
+		void BindToMaterial(string materialParam, IShaderResource fallback = null);
 	}
 }

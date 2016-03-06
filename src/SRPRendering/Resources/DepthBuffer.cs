@@ -4,13 +4,15 @@ using System.Linq;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 
-namespace SRPRendering
+namespace SRPRendering.Resources
 {
 	// Encapsulation of a D3D depth buffer.
-	public class DepthBuffer : IDisposable
+	public class DepthBuffer : IDisposable, ID3DShaderResource
 	{
 		public DepthStencilView DSV => dsv;
 		public ShaderResourceView SRV => srv;
+
+		public UnorderedAccessView UAV { get { throw new NotImplementedException("TODO: Depth buffer UAVs"); } }
 
 		public int Width => texture.Description.Width;
 		public int Height => texture.Description.Height;

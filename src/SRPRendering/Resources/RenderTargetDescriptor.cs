@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SharpDX.DXGI;
 
-namespace SRPRendering
+namespace SRPRendering.Resources
 {
 	class RenderTargetDescriptor : IDisposable
 	{

@@ -4,23 +4,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SharpDX.Direct3D11;
+using SRPRendering.Resources;
 
 namespace SRPRendering
 {
 	interface IShaderResourceVariableBinding
 	{
-		ShaderResourceView GetResource(IPrimitive primitive, ViewInfo viewInfo, IGlobalResources globalResources);
+		ID3DShaderResource GetResource(IPrimitive primitive, ViewInfo viewInfo, IGlobalResources globalResources);
 	}
 
 	class MaterialShaderResourceVariableBinding : IShaderResourceVariableBinding
 	{
-		public MaterialShaderResourceVariableBinding(string paramName, Texture fallback)
+		public MaterialShaderResourceVariableBinding(string paramName, ID3DShaderResource fallback)
 		{
 			_paramName = paramName;
 			_fallback = fallback;
 		}
 
-		public ShaderResourceView GetResource(IPrimitive primitive, ViewInfo viewInfo, IGlobalResources globalResources)
+		public ID3DShaderResource GetResource(IPrimitive primitive, ViewInfo viewInfo, IGlobalResources globalResources)
 		{
 			// Look up texture filename in the material.
 			if (primitive != null && primitive.Material != null)
@@ -29,31 +30,31 @@ namespace SRPRendering
 				if (primitive.Material.Textures.TryGetValue(_paramName, out filename))
 				{
 					// Get the actual texture object from the scene.
-					return primitive.Scene.GetTexture(filename).SRV;
+					return primitive.Scene.GetTexture(filename);
 				}
 			}
 
 			// Fall back to fallback texture.
-			return _fallback.SRV;
+			return _fallback;
 		}
 
 		private readonly string _paramName;
-		private readonly Texture _fallback;
+		private readonly ID3DShaderResource _fallback;
 	}
 
-	class TextureShaderResourceVariableBinding : IShaderResourceVariableBinding
+	class DirectShaderResourceVariableBinding : IShaderResourceVariableBinding
 	{
-		public TextureShaderResourceVariableBinding(Texture texture)
+		public DirectShaderResourceVariableBinding(ID3DShaderResource resource)
 		{
-			this.texture = texture;
+			_resource = resource;
 		}
 
-		public ShaderResourceView GetResource(IPrimitive primitive, ViewInfo viewInfo, IGlobalResources globalResources)
+		public ID3DShaderResource GetResource(IPrimitive primitive, ViewInfo viewInfo, IGlobalResources globalResources)
 		{
-			return texture.SRV;
+			return _resource;
 		}
 
-		private readonly Texture texture;
+		private readonly ID3DShaderResource _resource;
 	}
 
 	class RenderTargetShaderResourceVariableBinding : IShaderResourceVariableBinding
@@ -63,10 +64,10 @@ namespace SRPRendering
 			this.descriptor = descriptor;
 		}
 
-		public ShaderResourceView GetResource(IPrimitive primitive, ViewInfo viewInfo, IGlobalResources globalResources)
+		public ID3DShaderResource GetResource(IPrimitive primitive, ViewInfo viewInfo, IGlobalResources globalResources)
 		{
 			System.Diagnostics.Debug.Assert(descriptor.renderTarget != null);
-			return descriptor.renderTarget.SRV;
+			return descriptor.renderTarget;
 		}
 
 		private readonly RenderTargetDescriptor descriptor;
@@ -74,24 +75,9 @@ namespace SRPRendering
 
 	class DefaultDepthBufferShaderResourceVariableBinding : IShaderResourceVariableBinding
 	{
-		public ShaderResourceView GetResource(IPrimitive primitive, ViewInfo viewInfo, IGlobalResources globalResources)
+		public ID3DShaderResource GetResource(IPrimitive primitive, ViewInfo viewInfo, IGlobalResources globalResources)
 		{
-			return viewInfo.DepthBuffer.SRV;
-		}
-	}
-
-	class BufferShaderResourceVariableBinding : IShaderResourceVariableBinding
-	{
-		private readonly Resources.Buffer _buffer;
-
-		public BufferShaderResourceVariableBinding(Resources.Buffer buffer)
-		{
-			_buffer = buffer;
-		}
-
-		public ShaderResourceView GetResource(IPrimitive primitive, ViewInfo viewInfo, IGlobalResources globalResources)
-		{
-			return _buffer.SRV;
+			return viewInfo.DepthBuffer;
 		}
 	}
 }

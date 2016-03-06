@@ -10,7 +10,7 @@ using SRPScripting;
 
 namespace SRPRendering.Resources
 {
-	class Buffer : IDisposable
+	class Buffer : ID3DShaderResource, IDisposable
 	{
 		private SharpDX.Direct3D11.Buffer _buffer;
 
