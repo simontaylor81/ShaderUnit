@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using ShaderUnit.TestRenderer;
 
-namespace ShaderUnit.ShaderTests
+[assembly: ShaderUnit.TestRenderer.UseTestReporter]
+
+namespace ShaderUnit.SampleTests
 {
 	public class MyPixelShaderTest : RenderTestBase
 	{

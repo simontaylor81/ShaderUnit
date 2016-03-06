@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 
 namespace SRPRendering
 {
@@ -9,7 +10,8 @@ namespace SRPRendering
 	{
 		public static string GetShaderFilename(string file)
 		{
-			return Path.Combine(GlobalConfig.BaseDir, "Shaders", file);
+			var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+			return Path.Combine(PathUtils.FindPathInTree(assemblyPath, "Shaders"), file);
 		}
 	}
 }

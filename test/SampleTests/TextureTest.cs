@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using ShaderUnit.TestRenderer;
 
-namespace ShaderUnit.ShaderTests
+namespace ShaderUnit.SampleTests
 {
 	public class TextureTest : RenderTestBase
 	{
@@ -19,7 +19,7 @@ namespace ShaderUnit.ShaderTests
 			var vs = ri.CompileShader("FullscreenTexture.hlsl", "FullscreenTexture_VS", "vs_4_0");
 			var ps = ri.CompileShader("FullscreenTexture.hlsl", "FullscreenTexture_PS", "ps_4_0");
 
-			var texture = ri.LoadTexture("Assets/Textures/ThisIsATest.png");
+			var texture = ri.LoadTexture("Textures/ThisIsATest.png");
 
 			ps.FindResourceVariable("tex").Set(texture);
 

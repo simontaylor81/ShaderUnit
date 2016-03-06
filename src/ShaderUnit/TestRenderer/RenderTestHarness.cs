@@ -34,16 +34,14 @@ namespace ShaderUnit.TestRenderer
 		private readonly TestWorkspace _workspace;
 		private readonly ScriptRenderControl _src;
 
-		private static readonly string _baseDir = Path.Combine(GlobalConfig.BaseDir, @"src\ShaderUnit\TestScripts");
-
 		private static bool bLoggedDevice = false;
 
 		public IRenderInterface RenderInterface => _src;
 
-		public RenderTestHarness(TestRenderer renderer)
+		public RenderTestHarness(TestRenderer renderer, string assetDir)
 		{
 			_renderer = renderer;
-			_workspace = new TestWorkspace(_baseDir);
+			_workspace = new TestWorkspace(assetDir);
 
 			// Minor hack to avoid spamming the log with device names.
 			if (!bLoggedDevice)

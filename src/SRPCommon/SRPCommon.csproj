@@ -70,7 +70,6 @@
     <Compile Include="Util\DisposableUtil.cs" />
     <Compile Include="Util\DynamicHelpers.cs" />
     <Compile Include="Util\Extensions.cs" />
-    <Compile Include="Util\GlobalConfig.cs" />
     <Compile Include="Util\NumericsUtil.cs" />
     <Compile Include="Util\PathUtils.cs" />
     <Compile Include="Util\PolymorphicJsonCreationConverter.cs" />

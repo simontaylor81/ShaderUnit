@@ -8,7 +8,7 @@ using NUnit.Framework;
 using ShaderUnit.TestRenderer;
 using SRPScripting;
 
-namespace ShaderUnit.ShaderTests
+namespace ShaderUnit.SampleTests
 {
 	public class MyComputeShaderTest : RenderTestBase
 	{

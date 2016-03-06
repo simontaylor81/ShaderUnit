@@ -9,9 +9,6 @@ using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using ShaderUnit.Util;
 
-// TODO: In reality, this would have to go in the test assembly.
-[assembly: ShaderUnit.TestRenderer.UseTestReporter]
-
 namespace ShaderUnit.TestRenderer
 {
 	// Interface for a test reporter implementation.

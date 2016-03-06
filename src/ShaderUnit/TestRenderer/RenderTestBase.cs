@@ -15,9 +15,14 @@ namespace ShaderUnit.TestRenderer
 	{
 		private Bitmap _imageResult;
 		private RenderTestHarness _harness;
+		private readonly string _assetDir;
 
-		private static readonly string _baseDir = Path.Combine(GlobalConfig.BaseDir, @"src\ShaderUnit\TestScripts");	// TODO!
-		private static readonly string _expectedResultDir = Path.Combine(_baseDir, "ExpectedResults");
+		public RenderTestBase(string assetDirectory = null)
+		{
+			// Conventionally use "Assets" if nothing specified.
+			assetDirectory = assetDirectory ?? "Assets";
+			_assetDir = PathUtils.FindPathInTree(TestCaseAssemblyDir, assetDirectory);
+		}
 
 		[SetUp]
 		public void Setup()
@@ -46,7 +51,7 @@ namespace ShaderUnit.TestRenderer
 			{
 				throw new ShaderUnitException("Can only create one harness per test run.");
 			}
-			_harness = new RenderTestHarness(new TestRenderer());
+			_harness = new RenderTestHarness(new TestRenderer(), _assetDir);
 			return _harness;
 		}
 
@@ -56,11 +61,11 @@ namespace ShaderUnit.TestRenderer
 			{
 				throw new ShaderUnitException("Can only create one harness per test run.");
 			}
-			_harness = new RenderTestHarness(new TestRenderer(width, height));
+			_harness = new RenderTestHarness(new TestRenderer(width, height), _assetDir);
 			return _harness;
 		}
 
-		protected void CompareImage(Bitmap result)
+		protected void CompareImage(Bitmap result, string imageDirectory = null)
 		{
 			// Stash result for reporting.
 			Assert.That(_imageResult, Is.Null, "Can only compare one image per test");
@@ -68,12 +73,23 @@ namespace ShaderUnit.TestRenderer
 
 			// Load the image to compare against.
 			var context = TestContext.CurrentContext;
-			var expectedImageFilename = Path.Combine(_expectedResultDir, context.Test.FullName + ".png");
+			var expectedImageFilename = Path.Combine(GetExpectedResultDir(imageDirectory), context.Test.FullName + ".png");
 			Assert.That(File.Exists(expectedImageFilename), "No expected image to compare against.");
 			var expected = new Bitmap(expectedImageFilename);
 
 			// Compare the images.
 			AssertEx.ImagesEqual(expected, result);
 		}
+
+		private string GetExpectedResultDir(string relativePath)
+		{
+			// Conventionally look in "ExpectedResults" if nothing was specified.
+			relativePath = relativePath ?? "ExpectedResults";
+
+			return PathUtils.FindPathInTree(TestCaseAssemblyDir, relativePath);
+		}
+
+		// Get the location of the assembly of the derived object (i.e. the test case).
+		private string TestCaseAssemblyDir => Path.GetDirectoryName(GetType().Assembly.Location);
 	}
 }
