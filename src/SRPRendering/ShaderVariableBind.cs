@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using SharpDX.D3DCompiler;
 using SRPScripting;
-using SRPCommon.Scripting;
 using System.Numerics;
 using SRPCommon.Util;
 
@@ -84,48 +83,6 @@ namespace SRPRendering
 		private ShaderVariableBindSource source;
 	}
 
-	class ScriptShaderVariableBind : IShaderVariableBind
-	{
-		public ScriptShaderVariableBind(IShaderVariable variable, object value)
-		{
-			this.variable = variable;
-			this.value = value;
-
-			// Check type of the variable.
-			if (variable.VariableType.Type == ShaderVariableType.Float)
-			{
-				// Check that the script gave us the correct type.
-				int numComponents = variable.VariableType.Columns * variable.VariableType.Rows;
-				ScriptHelper.CheckConvertibleFloatList(value, numComponents,
-					String.Format("Value for shader variable '{0}'", variable.Name));
-			}
-			else
-			{
-				// TODO: Support other variable types.
-				throw new ScriptException("Unsupported shader variable type: " + variable.VariableType.Type.ToString());
-			}
-		}
-
-		public void UpdateVariable(ViewInfo viewInfo, IPrimitive primitive, IDictionary<string, dynamic> overrides)
-		{
-			try
-			{
-				// If the script gave us a function, call it.
-				dynamic val = ScriptHelper.ResolveFunction(value);
-				variable.SetFromDynamic(val);
-			}
-			catch (ScriptException ex)
-			{
-				throw new ScriptException("Incorrect type for bound shader variable:" + variable.Name, ex);
-			}
-		}
-
-		public bool AllowScriptOverride => false;
-
-		private IShaderVariable variable;
-		private dynamic value;
-	}
-
 	class MaterialShaderVariableBind : IShaderVariableBind
 	{
 		public MaterialShaderVariableBind(IShaderVariable variable, string source)
@@ -135,7 +92,7 @@ namespace SRPRendering
 
 			if (variable.VariableType.Type != ShaderVariableType.Float)
 			{
-				throw new ScriptException(String.Format("Cannot bind shader variable '{0}' to material parameter: only float parameters are supported.", variable.Name));
+				throw new ShaderUnitException(String.Format("Cannot bind shader variable '{0}' to material parameter: only float parameters are supported.", variable.Name));
 			}
 		}
 
@@ -185,11 +142,12 @@ namespace SRPRendering
 			{
 				try
 				{
-					variable.SetFromDynamic(overriddenValue);
+					throw new NotImplementedException("TODO: Shader overrides");
+					//variable.SetFromDynamic(overriddenValue);
 				}
-				catch (ScriptException ex)
+				catch (ShaderUnitException ex)
 				{
-					throw new ScriptException("Incorrect type for shader variable override: " + variable.Name, ex);
+					throw new ShaderUnitException("Incorrect type for shader variable override: " + variable.Name, ex);
 				}
 			}
 			else

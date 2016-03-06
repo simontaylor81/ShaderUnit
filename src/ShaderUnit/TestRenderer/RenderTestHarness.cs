@@ -1,15 +1,12 @@
-﻿using SRPCommon.Scripting;
-using SRPCommon.Util;
+﻿using SRPCommon.Util;
 using SRPRendering;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using SRPScripting;
-using NUnit.Framework;
 using System.Runtime.InteropServices;
 
 namespace ShaderUnit.TestRenderer
@@ -42,7 +39,7 @@ namespace ShaderUnit.TestRenderer
 			}
 
 			// Create syrup renderer to drive the rendering.
-			_sr = new SyrupRenderer(_workspace, _renderer.Device, null);
+			_sr = new SyrupRenderer(_workspace, _renderer.Device);
 		}
 
 		public void Dispose()
@@ -82,7 +79,7 @@ namespace ShaderUnit.TestRenderer
 		{
 			// Create buffer to hold results.
 			var numElements = size.Item1 * size.Item2 * size.Item3;
-			var outputBuffer = RenderInterface.CreateBuffer(numElements * Marshal.SizeOf(typeof(T)), Format.R32_Float, null, uav: true);
+			var outputBuffer = RenderInterface.CreateStructuredBuffer(new T[numElements], uav: true);	// TODO: Added interface for creating uninitialised buffer.
 			RenderInterface.SetShaderUavVariable(cs, outBufferVariable, outputBuffer);
 
 			int numThreadGroupsX = DivideCeil(size.Item1, shaderNumThreads.Item1);

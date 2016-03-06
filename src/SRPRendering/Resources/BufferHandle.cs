@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SRPCommon.Scripting;
+using SRPCommon.Util;
 using SRPScripting;
 
 namespace SRPRendering.Resources
@@ -36,11 +36,6 @@ namespace SRPRendering.Resources
 			_createBuffer = createBuffer;
 		}
 
-		public static BufferHandle CreateDynamic(RenderDevice device, int sizeInBytes, bool uav, Format format, dynamic contents)
-		{
-			return new BufferHandle(() => Buffer.CreateDynamic(device.Device, sizeInBytes, uav, format, contents));
-		}
-
 		public static BufferHandle CreateStructured<T>(RenderDevice device, bool uav, IEnumerable<T> contents) where T : struct
 		{
 			return new BufferHandle(() => Buffer.CreateStructured(device.Device, uav, contents));
@@ -51,7 +46,7 @@ namespace SRPRendering.Resources
 			// Don't create a buffer just to get its contents!
 			if (_buffer == null)
 			{
-				throw new ScriptException("Attempting to read contents of a buffer that is never written to.");
+				throw new ShaderUnitException("Attempting to read contents of a buffer that is never written to.");
 			}
 
 			return _buffer.GetContents<T>();

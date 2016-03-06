@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using System.IO;
 
 using SRPCommon.Util;
-using SRPCommon.Scripting;
 using System.Text.RegularExpressions;
 using SharpDX.Direct3D11;
 using SharpDX.D3DCompiler;
@@ -190,7 +189,7 @@ namespace SRPRendering
 			var message = filenameRegex.Replace(ex.Message, replacer);
 
 			OutputLogger.Instance.Log(LogCategory.ShaderCompile, message);
-			return new ScriptException("Shader compilation failed. See Shader Compilation log for details.", ex);
+			return new ShaderUnitException("Shader compilation failed. See Shader Compilation log for details.", ex);
 		}
 
 		private static bool IsShaderResource(ShaderInputType type) =>

@@ -143,7 +143,6 @@
     <Compile Include="StreamUtil.cs" />
     <Compile Include="MipGenerator.cs" />
     <Compile Include="RenderDevice.cs" />
-    <Compile Include="ScalarShaderVariableUserProperty.cs" />
     <Compile Include="FullscreenQuad.cs" />
     <Compile Include="GlobalResources.cs" />
     <Compile Include="IDrawable.cs" />
@@ -171,12 +170,8 @@
     <Compile Include="ShaderResourceVariableBind.cs" />
     <Compile Include="ShaderVariable.cs" />
     <Compile Include="ShaderVariableBind.cs" />
-    <Compile Include="MatrixShaderVariableUserProperty.cs" />
-    <Compile Include="UserVariableChoice.cs" />
-    <Compile Include="VectorShaderVariableUserProperty.cs" />
     <Compile Include="StateObjectCache.cs" />
     <Compile Include="Texture.cs" />
-    <Compile Include="UserVariable.cs" />
     <Compile Include="ViewInfo.cs" />
   </ItemGroup>
   <ItemGroup>

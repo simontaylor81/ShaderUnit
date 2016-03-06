@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using SharpDX;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
-using SRPCommon.Scripting;
+using SRPCommon.Util;
 
 namespace SRPRendering
 {
@@ -38,7 +38,7 @@ namespace SRPRendering
 			}
 			catch (SharpDXException ex)
 			{
-				throw new ScriptException("Failed to create input layout. Check shader inputs match scene format.", ex);
+				throw new ShaderUnitException("Failed to create input layout. Check shader inputs match scene format.", ex);
 			}
 		}
 

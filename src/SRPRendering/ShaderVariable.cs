@@ -6,10 +6,9 @@ using System.Reactive.Subjects;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using SRPCommon.UserProperties;
-using SRPCommon.Scripting;
 using SharpDX.D3DCompiler;
 using SharpDX;
+using SRPCommon.Util;
 
 namespace SRPRendering
 {
@@ -65,8 +64,6 @@ namespace SRPRendering
 
 		T GetComponent<T>(int index) where T : struct;
 		void SetComponent<T>(int index, T value) where T : struct;
-
-		void SetFromDynamic(dynamic value);
 
 		/// <summary>
 		/// Reset to initial value.
@@ -136,25 +133,6 @@ namespace SRPRendering
 			_subject.OnNext(Unit.Default);
 		}
 
-		// Set the value of the variable from a dynamic object.
-		public void SetFromDynamic(dynamic value)
-		{
-			int numComponents = VariableType.Columns * VariableType.Rows;
-			if (numComponents == 1)
-			{
-				// Treat as scalar for single component.
-				SetComponent<float>(0, ScriptHelper.GuardedCast<float>(value));
-			}
-			else
-			{
-				// Treat value as vector, setting each component.
-				for (int i = 0; i < numComponents; i++)
-				{
-					SetComponent<float>(i, (float)value[i]);
-				}
-			}
-		}
-
 		// Reset to initial state.
 		public void SetDefault()
 		{
@@ -217,70 +195,5 @@ namespace SRPRendering
 		private bool bDirty = true;
 		private byte[] initialValue;
 		private Subject<Unit> _subject = new Subject<Unit>();
-
-		public static IUserProperty CreateUserProperty(IEnumerable<IShaderVariable> variables)
-		{
-			// Convert to list to avoid multiple potentially expensive iterations.
-			variables = variables.ToList();
-
-			// Must have at least one element.
-			var first = variables.First();
-
-			// Must be all the same type.
-			if (!variables.All(v => v.VariableType.Equals(first.VariableType)))
-			{
-				throw new ScriptException($"Shader variables named '{first.Name}' do not all share the same type.");
-			}
-
-			switch (first.VariableType.Class)
-			{
-				case ShaderVariableClass.Vector:
-					{
-						int numComponents = first.VariableType.Rows * first.VariableType.Columns;
-						var components = Enumerable.Range(0, numComponents)
-							.Select(i => CreateScalar(variables, i))
-							.ToArray();
-						return new VectorShaderVariableUserProperty(variables, components);
-					}
-
-				case ShaderVariableClass.MatrixColumns:
-					{
-						// Save typing
-						var numCols = first.VariableType.Columns;
-						var numRows = first.VariableType.Rows;
-
-						// Create a scalar property for each element in the matrix.
-						var components = new IUserProperty[numCols, numRows];
-						for (int col = 0; col < numCols; col++)
-						{
-							for (int row = 0; row < numRows; row++)
-							{
-								components[col, row] = CreateScalar(variables, row + col * numRows);
-							}
-						}
-
-						// Create matrix property.
-						return new MatrixShaderVariableUserProperty(variables, components);
-					}
-
-				case ShaderVariableClass.Scalar:
-					return CreateScalar(variables, 0);
-			}
-
-			throw new ScriptException("Unsupported shader parameter type. Variable: " + first.Name);
-		}
-
-		private static IUserProperty CreateScalar(IEnumerable<IShaderVariable> variables, int componentIndex)
-		{
-			switch (variables.First().VariableType.Type)
-			{
-				case ShaderVariableType.Float:
-					return new ScalarShaderVariableUserProperty<float>(variables, componentIndex);
-				case ShaderVariableType.Int:
-					return new ScalarShaderVariableUserProperty<int>(variables, componentIndex);
-			}
-
-			throw new ScriptException("Unsupported shader parameter type. Variable: " + variables.First());
-		}
 	}
 }

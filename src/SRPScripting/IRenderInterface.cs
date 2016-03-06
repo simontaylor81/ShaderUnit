@@ -36,9 +36,6 @@ namespace SRPScripting
 		// Create a 2D texture of the given size and format, and fill it with the given data.
 		object CreateTexture2D(int width, int height, Format format, dynamic contents, bool generateMips = false);
 
-		// Create a buffer of the given size and format, and fill it with the given data.
-		IBuffer CreateBuffer(int sizeInBytes, Format format, dynamic contents, bool uav = false);
-
 		// Create a structured buffer.
 		IBuffer CreateStructuredBuffer<T>(IEnumerable<T> contents, bool uav = false) where T : struct;
 
@@ -54,20 +51,6 @@ namespace SRPScripting
 		void SetShaderResourceVariable(object shader, string var, object value);
 		void SetShaderSamplerState(object shader, string samplerName, SamplerState state);
 		void SetShaderUavVariable(object shader, string var, IBuffer value);
-
-		#region User Variables
-		dynamic AddUserVar_Float(string name, float defaultValue);
-		dynamic AddUserVar_Float2(string name, object defaultValue);
-		dynamic AddUserVar_Float3(string name, object defaultValue);
-		dynamic AddUserVar_Float4(string name, object defaultValue);
-		dynamic AddUserVar_Int(string name, int defaultValue);
-		dynamic AddUserVar_Int2(string name, object defaultValue);
-		dynamic AddUserVar_Int3(string name, object defaultValue);
-		dynamic AddUserVar_Int4(string name, object defaultValue);
-		dynamic AddUserVar_Bool(string name, bool defaultValue);
-		dynamic AddUserVar_String(string name, string defaultValue);
-		dynamic AddUserVar_Choice(string name, IEnumerable<object> choices, object defaultValue);
-		#endregion
 
 		// Still unsure if this is the best way to go.
 		void SetFrameCallback(FrameCallback callback);

@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
-using SRPCommon.UserProperties;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Numerics;
 
 namespace SRPCommon.Scene
@@ -18,9 +16,6 @@ namespace SRPCommon.Scene
 		public IDictionary<string, Vector4> Parameters => vectorParameters;
 		public IDictionary<string, string> Textures => textures;
 
-		private List<IUserProperty> _userProperties = new List<IUserProperty>();
-		public IEnumerable<IUserProperty> UserProperties => _userProperties;
-
 		// Observable that fires when something important changes in the primitive.
 		public IObservable<Unit> OnChanged { get; private set; }
 
@@ -31,16 +26,6 @@ namespace SRPCommon.Scene
 
 		internal void PostLoad()
 		{
-			_userProperties = vectorParameters.Keys
-				.Select(key => (IUserProperty)new StructUserProperty(
-					key,
-					() => vectorParameters[key],
-					o => vectorParameters[key] = (Vector4)o)
-				)
-				.ToList();
-
-			// We change whenever our properties change.
-			OnChanged = Observable.Merge(UserProperties);
 		}
 	}
 }

@@ -9,7 +9,6 @@ using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using SRPCommon.Interfaces;
-using SRPCommon.Scripting;
 using SRPScripting;
 
 using DepthStencilState = SRPScripting.DepthStencilState;
@@ -17,6 +16,7 @@ using SamplerState = SRPScripting.SamplerState;
 using BlendState = SRPScripting.BlendState;
 using SharpDX.Mathematics.Interop;
 using SharpDX.Direct3D;
+using SRPCommon.Util;
 
 namespace SRPRendering
 {
@@ -46,7 +46,7 @@ namespace SRPRendering
 		{
 			if (FormatHelper.IsCompressed(texture.Texture2D.Description.Format))
 			{
-				throw new ScriptException("Cannot generate mips for a compressed texture");
+				throw new ShaderUnitException("Cannot generate mips for a compressed texture");
 			}
 
 			// Check that the shader file actually exists.
@@ -55,7 +55,7 @@ namespace SRPRendering
 			var resolvedShaderPath = _workspace.FindProjectFile(shaderFile);
 			if (resolvedShaderPath == null || !File.Exists(resolvedShaderPath))
 			{
-				throw new ScriptException("Cannot find mip generation shader file: " + shaderFile);
+				throw new ShaderUnitException("Cannot find mip generation shader file: " + shaderFile);
 			}
 
 			var isCubemap = (texture.Texture2D.Description.OptionFlags & ResourceOptionFlags.TextureCube) != 0;

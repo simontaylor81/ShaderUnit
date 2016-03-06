@@ -7,8 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SharpDX.Direct3D11;
 using SharpDX.Mathematics.Interop;
-using SRPCommon.Scene;
-using SRPCommon.Scripting;
+using SRPCommon.Util;
 using SRPScripting;
 
 namespace SRPRendering
@@ -47,11 +46,11 @@ namespace SRPRendering
 
 			// Vertex shader is not optional.
 			if (vertexShader == null)
-				throw new ScriptException("DrawScene: Cannot draw without a vertex shader.");
+				throw new ShaderUnitException("DrawScene: Cannot draw without a vertex shader.");
 
 			// Must have a scene to draw one!
 			if (scene == null)
-				throw new ScriptException("DrawScene: No scene set.");
+				throw new ShaderUnitException("DrawScene: No scene set.");
 
 			// Set input layout
 			deviceContext.InputAssembler.InputLayout = _globalResources.InputLayoutCache.GetInputLayout(
@@ -90,7 +89,7 @@ namespace SRPRendering
 
 			// Vertex shader is not optional.
 			if (vertexShader == null)
-				throw new ScriptException("DrawSphere: Cannot draw without a vertex shader.");
+				throw new ShaderUnitException("DrawSphere: Cannot draw without a vertex shader.");
 
 			// Set input layout
 			deviceContext.InputAssembler.InputLayout = _globalResources.InputLayoutCache.GetInputLayout(
@@ -122,7 +121,7 @@ namespace SRPRendering
 
 			// Vertex shader is not optional.
 			if (vertexShader == null)
-				throw new ScriptException("DrawFullscreenQuad: Cannot draw without a vertex shader.");
+				throw new ShaderUnitException("DrawFullscreenQuad: Cannot draw without a vertex shader.");
 
 			// Set input layout
 			deviceContext.InputAssembler.InputLayout = _globalResources.InputLayoutCache.GetInputLayout(
@@ -150,7 +149,7 @@ namespace SRPRendering
 			Shader cs = GetShader(shaderHandle);
 			if (cs == null)
 			{
-				throw new ScriptException("Dispatch: compute shader is required");
+				throw new ShaderUnitException("Dispatch: compute shader is required");
 			}
 
 			cs.Set(deviceContext);
@@ -162,13 +161,12 @@ namespace SRPRendering
 		}
 
 		// Clear render targets.
-		public void Clear(dynamic colour, IEnumerable<object> renderTargetHandles = null)
+		public void Clear(Vector4 colour, IEnumerable<object> renderTargetHandles = null)
 		{
 			// Convert list of floats to a colour.
 			try
 			{
-				Vector4 vectorColour = ScriptHelper.ConvertToVector4(colour);
-				var rawColour = new RawColor4(vectorColour.X, vectorColour.Y, vectorColour.Z, vectorColour.W);
+				var rawColour = new RawColor4(colour.X, colour.Y, colour.Z, colour.W);
 
 				// Clear each specified target.
 				var rtvs = GetRTVS(renderTargetHandles);
@@ -177,23 +175,21 @@ namespace SRPRendering
 					deviceContext.ClearRenderTargetView(rtv, rawColour);
 				}
 			}
-			catch (ScriptException ex)
+			catch (ShaderUnitException ex)
 			{
-				throw new ScriptException("Clear: Invalid colour.", ex);
+				throw new ShaderUnitException("Clear: Invalid colour.", ex);
 			}
 		}
 
 		// Draw a wireframe sphere.
-		public void DrawWireSphere(dynamic position,
+		public void DrawWireSphere(Vector3 position,
 								   float radius,
-								   dynamic colour,
+								   Vector3 colour,
 								   object renderTarget = null)
 		{
 			try
 			{
-				// Convert position and colour to a real vector and colour.
-				var pos = ScriptHelper.ConvertToVector3(position);
-				var col = new Vector4(ScriptHelper.ConvertToVector3(colour), 1.0f);
+				var col = new Vector4(colour, 1.0f);
 
 				// Set render target.
 				SetRenderTargets(new[] { renderTarget }, null);
@@ -208,7 +204,7 @@ namespace SRPRendering
 				SetShaders(_globalResources.BasicShaders.BasicSceneVS, _globalResources.BasicShaders.SolidColourPS);
 
 				// Construct transform matrix.
-				var transform = Matrix4x4.CreateScale(radius, radius, radius) * Matrix4x4.CreateTranslation(pos);
+				var transform = Matrix4x4.CreateScale(radius, radius, radius) * Matrix4x4.CreateTranslation(position);
 
 				// Set shader constants.
 				_globalResources.BasicShaders.SolidColourShaderVar.Set(col);
@@ -221,9 +217,9 @@ namespace SRPRendering
 				// Draw the sphere.
 				_globalResources.SphereMesh.Draw(deviceContext);
 			}
-			catch (ScriptException ex)
+			catch (ShaderUnitException ex)
 			{
-				throw new ScriptException("Invalid parameters to DrawWireSphere.", ex);
+				throw new ShaderUnitException("Invalid parameters to DrawWireSphere.", ex);
 			}
 			finally
 			{
@@ -243,7 +239,7 @@ namespace SRPRendering
 
 			// If it's not null, but not a valid index, throw.
 			if (handle.index < 0 || handle.index >= shaders.Count)
-				throw new ScriptException(string.Format("Invalid shader given to {0}.", caller));
+				throw new ShaderUnitException(string.Format("Invalid shader given to {0}.", caller));
 
 			return shaders[handle.index];
 		}
@@ -255,7 +251,7 @@ namespace SRPRendering
 
 			// If it's null or not a valid index, throw.
 			if (handle == null || handle.index < 0 || handle.index >= shaders.Count)
-				throw new ScriptException(string.Format("Invalid render target given to {0}.", caller));
+				throw new ShaderUnitException(string.Format("Invalid render target given to {0}.", caller));
 
 			return renderTargetResources[handle.index];
 		}
@@ -303,7 +299,7 @@ namespace SRPRendering
 			else
 			{
 				// TODO: User-allocated depth buffers.
-				throw new ScriptException("Invalid depth buffer.");
+				throw new ShaderUnitException("Invalid depth buffer.");
 			}
 
 			// Set them to the device.

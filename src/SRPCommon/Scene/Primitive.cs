@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SRPCommon.Util;
-using SRPCommon.UserProperties;
-using System.Reactive.Linq;
 using System.Reactive;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -45,9 +43,6 @@ namespace SRPCommon.Scene
 		[SuppressMessage("Language", "CSE0002:Use getter-only auto properties", Justification = "Needed for serialisation")]
 		private string MaterialName { get; set; }
 
-		protected List<IUserProperty> _userProperties = new List<IUserProperty>();
-		public IEnumerable<IUserProperty> UserProperties => _userProperties;
-
 		public virtual bool IsValid => true;
 
 		// Observable that fires when something important changes in the primitive.
@@ -56,13 +51,6 @@ namespace SRPCommon.Scene
 		protected Primitive()
 		{
 			Scale = new Vector3(1.0f, 1.0f, 1.0f);
-
-			_userProperties.Add(new StructUserProperty("Position", () => Position, o => Position = (Vector3)o));
-			_userProperties.Add(new StructUserProperty("Scale", () => Scale, o => Scale = (Vector3)o));
-			_userProperties.Add(new StructUserProperty("Rotation", () => Rotation, o => Rotation = (Vector3)o));
-
-			// We change whenever our properties change.
-			OnChanged = Observable.Merge(UserProperties);
 		}
 
 		public Matrix4x4 LocalToWorld

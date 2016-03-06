@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -42,13 +43,13 @@ namespace SRPScripting
 			IDictionary<string, dynamic> shaderVariableOverrides = null);
 
 		// Clear render targets.
-		void Clear(dynamic colour, IEnumerable<object> renderTargets = null);
+		void Clear(Vector4 colour, IEnumerable<object> renderTargets = null);
 
 		// Draw a wireframe sphere.
 		void DrawWireSphere(
-			dynamic position,
+			Vector3 position,
 			float radius,
-			dynamic colour,
+			Vector3 colour,
 			object renderTarget = null);
 	}
 }

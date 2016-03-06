@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
-using SRPCommon.Scripting;
+using SRPCommon.Util;
 
 namespace SRPRendering
 {
@@ -35,7 +35,7 @@ namespace SRPRendering
 		{
 			if (_shaderFrequency != ShaderFrequency.Compute)
 			{
-				throw new ScriptException("UAVs are only supported for compute shaders.");
+				throw new ShaderUnitException("UAVs are only supported for compute shaders.");
 			}
 
 			context.ComputeShader.SetUnorderedAccessView(_slot, UAV);

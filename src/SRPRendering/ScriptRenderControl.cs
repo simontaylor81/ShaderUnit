@@ -7,8 +7,6 @@ using System.Reactive.Linq;
 using SharpDX.Direct3D;
 using SRPCommon.Interfaces;
 using SRPCommon.Scene;
-using SRPCommon.Scripting;
-using SRPCommon.UserProperties;
 using SRPCommon.Util;
 using SRPRendering.Resources;
 using SRPScripting;
@@ -32,7 +30,6 @@ namespace SRPRendering
 
 			// Clear shaders array. Don't need to dispose as they're held by the cache.
 			shaders.Clear();
-			_userVariables.Clear();
 
 			// Clear render target descriptors and dispose the actual render targets.
 			DisposableUtil.DisposeList(renderTargets);
@@ -40,28 +37,6 @@ namespace SRPRendering
 
 			// Dispose resources registered for cleanup.
 			DisposableUtil.DisposeList(_resources);
-		}
-
-		// Get the list of properties for a script run. Call after script execution.
-		public IEnumerable<IUserProperty> GetProperties()
-		{
-			// Group variables by name so we don't create duplicate entries with the same name.
-			// Don't add bound variables, not event as read-only
-			// (as they're too slow to update every time we render the frame).
-			var variablesByName = from shader in shaders
-									from variable in shader.Variables
-									where variable.Bind == null
-									group variable by variable.Name;
-
-			// Add shader variable property to the list for each unique name.
-			var result = variablesByName
-				.Select(variableGroup => ShaderVariable.CreateUserProperty(variableGroup));
-
-			// Add user variables too.
-			result = result.Concat(_userVariables);
-
-			// Use ToList to reify the enumerable, forcing a single enumeration and any exceptions to be thrown.
-			return result.ToList();
 		}
 
 		// IScriptRenderInterface implementation.
@@ -77,7 +52,7 @@ namespace SRPRendering
 		{
 			var path = FindShader(filename);
 			if (!File.Exists(path))
-				throw new ScriptException("Shader file " + filename + " not found in project.");
+				throw new ShaderUnitException("Shader file " + filename + " not found in project.");
 
 			return AddShader(_device.GlobalResources.ShaderCache.GetShader(
 				path, entryPoint, profile, FindShader, ConvertDefines(defines)));
@@ -116,7 +91,7 @@ namespace SRPRendering
 			var path = _workspace.FindProjectFile(name);
 			if (path == null)
 			{
-				throw new ScriptException("Could not find shader file: " + name);
+				throw new ShaderUnitException("Could not find shader file: " + name);
 			}
 
 			return path;
@@ -155,9 +130,10 @@ namespace SRPRendering
 
 		public void SetShaderVariable(object handleOrHandles, string varName, dynamic value)
 		{
-			var shaders = GetShaders(handleOrHandles);
-			var variables = shaders.Select(shader => shader.FindVariable(varName));
-			SetShaderBind(variables, variable => new ScriptShaderVariableBind(variable, value));
+			throw new NotImplementedException("TODO: Set shader variables");
+			//var shaders = GetShaders(handleOrHandles);
+			//var variables = shaders.Select(shader => shader.FindVariable(varName));
+			//SetShaderBind(variables, variable => new ScriptShaderVariableBind(variable, value));
 		}
 
 		public void ShaderVariableIsScriptOverride(object handleOrHandles, string varName)
@@ -181,7 +157,7 @@ namespace SRPRendering
 					// Allow manual override of auto-binds
 					if (variable.Bind != null && !variable.IsAutoBound)
 					{
-						throw new ScriptException("Attempting to bind already bound shader variable: " + variable.Name);
+						throw new ShaderUnitException("Attempting to bind already bound shader variable: " + variable.Name);
 					}
 
 					// Bind the variable's value to the script value.
@@ -210,7 +186,7 @@ namespace SRPRendering
 				fallbackTexture = GetTexture(fallback);
 				if (fallbackTexture == null)
 				{
-					throw new ScriptException($"Invalid fallback texture binding {varName}");
+					throw new ShaderUnitException($"Invalid fallback texture binding {varName}");
 				}
 			}
 
@@ -218,7 +194,7 @@ namespace SRPRendering
 			{
 				if (variable.Bind != null)
 				{
-					throw new ScriptException("Attempting to bind already bound shader variable: " + varName);
+					throw new ShaderUnitException("Attempting to bind already bound shader variable: " + varName);
 				}
 
 				variable.Bind = new MaterialShaderResourceVariableBind(paramName, fallbackTexture);
@@ -239,7 +215,7 @@ namespace SRPRendering
 			{
 				if (variable.Bind != null)
 				{
-					throw new ScriptException("Attempting to bind already bound shader variable: " + varName);
+					throw new ShaderUnitException("Attempting to bind already bound shader variable: " + varName);
 				}
 
 				if (texture != null)
@@ -265,7 +241,7 @@ namespace SRPRendering
 				}
 				else
 				{
-					throw new ScriptException("Invalid parameter for shader resource variable value.");
+					throw new ShaderUnitException("Invalid parameter for shader resource variable value.");
 				}
 			}
 		}
@@ -279,14 +255,14 @@ namespace SRPRendering
 			var buffer = value as BufferHandle;
 			if (buffer == null)
 			{
-				throw new ScriptException("Invalid buffer for UAV");
+				throw new ShaderUnitException("Invalid buffer for UAV");
 			}
 
 			foreach (var variable in variables)
 			{
 				if (variable.UAV != null)
 				{
-					throw new ScriptException("Attempting to set an already set shader variable: " + varName);
+					throw new ShaderUnitException("Attempting to set an already set shader variable: " + varName);
 				}
 
 				variable.UAV = buffer.Buffer.UAV;
@@ -303,42 +279,11 @@ namespace SRPRendering
 			{
 				if (variable.Bind != null)
 				{
-					throw new ScriptException("Attempting to bind already bound shader sampler: " + samplerName);
+					throw new ShaderUnitException("Attempting to bind already bound shader sampler: " + samplerName);
 				}
 				variable.Bind = new ShaderSamplerVariableBindDirect(state);
 			}
 		}
-
-		#region User Variables
-		public dynamic AddUserVar_Float(string name, float defaultValue) => AddScalarUserVar<float>(name, defaultValue);
-		public dynamic AddUserVar_Float2(string name, object defaultValue) => AddVectorUserVar<float>(2, name, defaultValue);
-		public dynamic AddUserVar_Float3(string name, object defaultValue) => AddVectorUserVar<float>(3, name, defaultValue);
-		public dynamic AddUserVar_Float4(string name, object defaultValue) => AddVectorUserVar<float>(4, name, defaultValue);
-		public dynamic AddUserVar_Int(string name, int defaultValue) => AddScalarUserVar<int>(name, defaultValue);
-		public dynamic AddUserVar_Int2(string name, object defaultValue) => AddVectorUserVar<int>(2, name, defaultValue);
-		public dynamic AddUserVar_Int3(string name, object defaultValue) => AddVectorUserVar<int>(3, name, defaultValue);
-		public dynamic AddUserVar_Int4(string name, object defaultValue) => AddVectorUserVar<int>(4, name, defaultValue);
-		public dynamic AddUserVar_Bool(string name, bool defaultValue) => AddScalarUserVar<bool>(name, defaultValue);
-		public dynamic AddUserVar_String(string name, string defaultValue) => AddScalarUserVar<string>(name, defaultValue);
-
-		public dynamic AddUserVar_Choice(string name, IEnumerable<object> choices, object defaultValue)
-			=> AddUserVar(UserVariable.CreateChoice(name, choices, defaultValue));
-
-		// Add a single-component user variable.
-		private dynamic AddScalarUserVar<T>(string name, T defaultValue)
-			=> AddUserVar(UserVariable.CreateScalar(name, defaultValue));
-
-		// Add a vector user variable.
-		private dynamic AddVectorUserVar<T>(int numComponents, string name, object defaultValue)
-			=> AddUserVar(UserVariable.CreateVector<T>(numComponents, name, defaultValue));
-
-		// Add a user variable.
-		private dynamic AddUserVar<T>(UserVariable<T> userVar)
-		{
-			_userVariables.Add(userVar);
-			return userVar.GetFunction();
-		}
-		#endregion
 
 		// Create a render target of dimensions equal to the viewport.
 		public object CreateRenderTarget()
@@ -350,8 +295,9 @@ namespace SRPRendering
 		// Create a 2D texture of the given size and format, and fill it with the given data.
 		public object CreateTexture2D(int width, int height, Format format, dynamic contents, bool generateMips = false)
 		{
-			textures.Add(Texture.CreateFromScript(_device.Device, width, height, format, contents, generateMips));
-			return new TextureHandle(textures.Count - 1);
+			throw new NotImplementedException("TODO: Dynamic texture generation");
+			//textures.Add(Texture.CreateFromScript(_device.Device, width, height, format, contents, generateMips));
+			//return new TextureHandle(textures.Count - 1);
 		}
 
 		// Load a texture from disk.
@@ -382,11 +328,11 @@ namespace SRPRendering
 			}
 			catch (FileNotFoundException ex)
 			{
-				throw new ScriptException("Could not file texture file: " + absPath, ex);
+				throw new ShaderUnitException("Could not file texture file: " + absPath, ex);
 			}
 			catch (Exception ex)
 			{
-				throw new ScriptException("Error loading texture file: " + absPath, ex);
+				throw new ShaderUnitException("Error loading texture file: " + absPath, ex);
 			}
 
 			// We want mip generation errors to be reported directly, so this is
@@ -400,10 +346,6 @@ namespace SRPRendering
 			textures.Add(texture);
 			return new TextureHandle(textures.Count - 1);
 		}
-
-		// Create a buffer of the given size and format, and fill it with the given data.
-		public IBuffer CreateBuffer(int sizeInBytes, Format format, dynamic contents, bool uav = false) =>
-			AddResource(BufferHandle.CreateDynamic(_device, sizeInBytes, uav, format, contents));
 
 		// Create a structured buffer.
 		public IBuffer CreateStructuredBuffer<T>(IEnumerable<T> contents, bool uav = false) where T : struct =>
@@ -479,7 +421,7 @@ namespace SRPRendering
 
 			if (handles == null || handles.Any(h => !IsValidShaderHandle(h)))
 			{
-				throw new ScriptException("Invalid shader.");
+				throw new ShaderUnitException("Invalid shader.");
 			}
 
 			return handles.Select(h => shaders[h.index]);
@@ -551,9 +493,6 @@ namespace SRPRendering
 
 		// Pointer back to the workspace. Needed so we can access the project to get shaders from.
 		private IWorkspace _workspace;
-
-		// User variables.
-		private List<IUserProperty> _userVariables = new List<IUserProperty>();
 
 		private readonly MipGenerator _mipGenerator;
 	}
