@@ -24,18 +24,6 @@ namespace SRPRendering
 			_mipGenerator = new MipGenerator(device, workspace);
 		}
 
-		public void Reset()
-		{
-			frameCallback = null;
-
-			// Clear render target descriptors and dispose the actual render targets.
-			DisposableUtil.DisposeList(renderTargets);
-			DisposableUtil.DisposeList(textures);
-
-			// Dispose resources registered for cleanup.
-			DisposableUtil.DisposeList(_resources);
-		}
-
 		// IScriptRenderInterface implementation.
 
 		// Set the master per-frame callback that lets the script control rendering.
@@ -152,9 +140,11 @@ namespace SRPRendering
 
 		public void Dispose()
 		{
-			Reset();
+			frameCallback = null;
 
 			DisposableUtil.DisposeList(renderTargets);
+			DisposableUtil.DisposeList(textures);
+			DisposableUtil.DisposeList(_resources);
 
 			_device = null;
 		}
@@ -178,6 +168,7 @@ namespace SRPRendering
 			}
 		}
 
+		// TODO: No resizing so this is pointless.
 		private void UpdateRenderTargets(int viewportWidth, int viewportHeight)
 		{
 			foreach (var desc in renderTargets)

@@ -27,11 +27,6 @@ namespace SRPRendering
 			ScriptInterface = _scriptRenderControl;
 		}
 
-		private void Reset()
-		{
-			_scriptRenderControl.Reset();
-		}
-
 		public Scene Scene
 		{
 			get { return _scene; }
@@ -53,8 +48,6 @@ namespace SRPRendering
 
 		public void Dispose()
 		{
-			Reset();
-
 			_disposables.Dispose();
 			DisposableUtil.SafeDispose(_renderScene);
 			_device = null;
