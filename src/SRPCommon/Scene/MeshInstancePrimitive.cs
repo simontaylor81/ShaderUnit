@@ -33,7 +33,7 @@ namespace SRPCommon.Scene
 				}
 				else
 				{
-					OutputLogger.Instance.LogLine(LogCategory.Log, "Mesh not found: " + MeshName);
+					throw new ShaderUnitException("Mesh not found: " + MeshName);
 				}
 			}
 		}

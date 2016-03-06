@@ -192,8 +192,7 @@ namespace SRPRendering.Shaders
 
 			var message = filenameRegex.Replace(ex.Message, replacer);
 
-			OutputLogger.Instance.Log(LogCategory.ShaderCompile, message);
-			return new ShaderUnitException("Shader compilation failed. See Shader Compilation log for details.", ex);
+			return new ShaderUnitException(message, ex);
 		}
 
 		// Get all variables from all cbuffers.

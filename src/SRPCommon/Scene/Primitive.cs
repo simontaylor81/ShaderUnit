@@ -68,7 +68,7 @@ namespace SRPCommon.Scene
 				}
 				else
 				{
-					OutputLogger.Instance.LogLine(LogCategory.Log, "Material not found: " + MaterialName);
+					throw new ShaderUnitException("Material not found: " + MaterialName);
 				}
 			}
 		}

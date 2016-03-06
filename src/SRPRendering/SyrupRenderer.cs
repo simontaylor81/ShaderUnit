@@ -31,9 +31,6 @@ namespace SRPRendering
 		private void Reset()
 		{
 			_scriptRenderControl.Reset();
-
-			// Reset output logger so warnings are written again.
-			OutputLogger.Instance.ResetLogOnce();
 		}
 
 		public Scene Scene

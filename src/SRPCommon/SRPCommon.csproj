@@ -79,7 +79,6 @@
     <Compile Include="Util\Extensions.cs" />
     <Compile Include="Util\GlobalConfig.cs" />
     <Compile Include="Util\NumericsUtil.cs" />
-    <Compile Include="Util\OutputLogger.cs" />
     <Compile Include="Util\PathUtils.cs" />
     <Compile Include="Util\PolymorphicJsonCreationConverter.cs" />
     <Compile Include="Util\SerialisationUtils.cs" />

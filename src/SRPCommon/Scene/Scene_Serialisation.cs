@@ -43,23 +43,17 @@ namespace SRPCommon.Scene
 			}
 			catch (IOException ex)
 			{
-				OutputLogger.Instance.LogLine(LogCategory.Log, "Failed to load scene {0}", filename);
-				OutputLogger.Instance.LogLine(LogCategory.Log, ex.Message);
-				return null;
+				throw new ShaderUnitException($"Failed to load scene {filename}", ex);
 			}
 			catch (JsonException ex)
 			{
-				OutputLogger.Instance.LogLine(LogCategory.Log, "Failed to parse scene {0}", filename);
-				OutputLogger.Instance.LogLine(LogCategory.Log, ex.Message);
-				return null;
+				throw new ShaderUnitException($"Failed to parse scene {filename}", ex);
 			}
 			catch (Exception ex)
 			{
 				// Catch-all for any exception thrown during the parsing process in case of malformed scene.
 				// TODO: Perhaps be more selective?
-				OutputLogger.Instance.LogLine(LogCategory.Log, "Scene is invalid: {0}", filename);
-				OutputLogger.Instance.LogLine(LogCategory.Log, ex.Message);
-				return null;
+				throw new ShaderUnitException($"Scene is invalid: {filename}", ex);
 			}
 		}
 

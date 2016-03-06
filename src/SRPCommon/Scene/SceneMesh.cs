@@ -35,7 +35,7 @@ namespace SRPCommon.Scene
 			}
 			else
 			{
-				OutputLogger.Instance.LogLine(LogCategory.Log, "Mesh not found: {0}", Filename);
+				throw new FileNotFoundException($"Mesh not found: {Filename}");
 			}
 		}
 

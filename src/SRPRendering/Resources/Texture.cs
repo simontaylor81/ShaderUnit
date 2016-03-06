@@ -72,9 +72,7 @@ namespace SRPRendering.Resources
 			}
 			catch (Exception ex)
 			{
-				// TODO: Better error handling.
-				OutputLogger.Instance.LogLine(LogCategory.Log, "Failed to load texture file {0} Error code: 0x{1:x8}", filename, ex.HResult);
-				throw;
+				throw new ShaderUnitException(string.Format("Failed to load texture file {0} Error code: 0x{1:x8}", filename, ex.HResult), ex);
 			}
 		}
 
