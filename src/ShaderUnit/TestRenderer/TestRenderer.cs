@@ -10,6 +10,7 @@ using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
 using SRPRendering;
 using SRPRendering.Resources;
+using SRPScripting;
 
 namespace ShaderUnit.TestRenderer
 {
@@ -41,7 +42,7 @@ namespace ShaderUnit.TestRenderer
 			{
 				Width = _width,
 				Height = _height,
-				Format = Format.B8G8R8A8_UNorm,
+				Format = SharpDX.DXGI.Format.B8G8R8A8_UNorm,
 				MipLevels = 1,
 				ArraySize = 1,
 				BindFlags = BindFlags.RenderTarget,
@@ -71,16 +72,16 @@ namespace ShaderUnit.TestRenderer
 			disposables.Dispose();
 		}
 
-		public Bitmap Render(ScriptRenderControl src)
+		public Bitmap Render(ScriptRenderControl src, FrameCallback callback)
 		{
-			Dispatch(src);
+			Dispatch(src, callback);
 
 			// Read back the render target and convert to bitmap.
 			return ReadBackBufferBitmap();
 		}
 
 		// Basically the same as Render, but doesn't read back the backbuffer contents.
-		public void Dispatch(ScriptRenderControl src)
+		public void Dispatch(ScriptRenderControl src, FrameCallback callback)
 		{
 			Trace.Assert(src != null);
 
@@ -106,7 +107,7 @@ namespace ShaderUnit.TestRenderer
 				depthBuffer
 				);
 
-			src.Render(context, viewInfo);
+			src.Render(context, viewInfo, callback);
 			context.Flush();
 		}
 

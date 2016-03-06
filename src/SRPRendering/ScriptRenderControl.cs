@@ -26,12 +26,6 @@ namespace SRPRendering
 
 		// IScriptRenderInterface implementation.
 
-		// Set the master per-frame callback that lets the script control rendering.
-		public void SetFrameCallback(FrameCallback callback)
-		{
-			frameCallback = callback;
-		}
-
 		public SRPScripting.Shader.IShader CompileShader(
 			string filename, string entryPoint, string profile, IDictionary<string, object> defines = null)
 		{
@@ -120,8 +114,6 @@ namespace SRPRendering
 
 		public void Dispose()
 		{
-			frameCallback = null;
-
 			DisposableUtil.DisposeList(renderTargets);
 			DisposableUtil.DisposeList(textures);
 			DisposableUtil.DisposeList(_resources);
@@ -129,22 +121,24 @@ namespace SRPRendering
 			_device = null;
 		}
 
-		public void Render(SharpDX.Direct3D11.DeviceContext deviceContext, ViewInfo viewInfo)
+		public void Render(SharpDX.Direct3D11.DeviceContext deviceContext, ViewInfo viewInfo, FrameCallback frameCallback)
 		{
+			if (frameCallback == null)
+			{
+				throw new ArgumentNullException(nameof(frameCallback));
+			}
+
 			// Create render targets if necessary.
 			UpdateRenderTargets(viewInfo.ViewportWidth, viewInfo.ViewportHeight);
 
-			// Let the script do its thing.
-			if (frameCallback != null)
-			{
-				var renderContext = new ScriptRenderContext(
-					deviceContext,
-					viewInfo,
-					(from desc in renderTargets select desc.renderTarget).ToArray(),
-					_device.GlobalResources);
+			// Let the test do its thing.
+			var renderContext = new ScriptRenderContext(
+				deviceContext,
+				viewInfo,
+				(from desc in renderTargets select desc.renderTarget).ToArray(),
+				_device.GlobalResources);
 
-				frameCallback(renderContext);
-			}
+			frameCallback(renderContext);
 		}
 
 		// TODO: No resizing so this is pointless.
@@ -220,9 +214,6 @@ namespace SRPRendering
 
 		// List of render targets and their descritors.
 		private List<RenderTargetDescriptor> renderTargets = new List<RenderTargetDescriptor>();
-
-		// Master callback that we call each frame.
-		private FrameCallback frameCallback;
 
 		// Pointer back to the workspace. Needed so we can access the project to get shaders from.
 		private IWorkspace _workspace;

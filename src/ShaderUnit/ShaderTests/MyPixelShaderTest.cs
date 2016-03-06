@@ -36,12 +36,10 @@ namespace ShaderUnit.ShaderTests
 
 			ps.FindConstantVariable("Colour").Set(new Vector4(r, g, b, a));
 
-			ri.SetFrameCallback(context =>
+			var result = RenderHarness.RenderImage(context =>
 			{
 				context.DrawFullscreenQuad(vs, ps);
 			});
-
-			var result = RenderHarness.RenderImage();
 			CompareImage(result);
 		}
 	}

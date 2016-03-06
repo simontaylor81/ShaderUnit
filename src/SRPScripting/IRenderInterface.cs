@@ -40,9 +40,6 @@ namespace SRPScripting
 		// Load a texture from a file.
 		IShaderResource LoadTexture(string path, object generateMips = null);
 
-		// Still unsure if this is the best way to go.
-		void SetFrameCallback(FrameCallback callback);
-
 		// Handles to special resources.
 		//object BackBuffer { get; }
 		object DepthBuffer { get; }

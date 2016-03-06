@@ -49,33 +49,32 @@ namespace ShaderUnit.TestRenderer
 			_src.Dispose();
 		}
 
-		public Bitmap RenderImage()
+		public Bitmap RenderImage(FrameCallback callback)
 		{
 			// Render stuff and return the resulting image.
-			return _renderer.Render(_src);
+			return _renderer.Render(_src, callback);
 		}
 
 		// Helper for the common case of rendering a fullscreen quad.
 		public Bitmap RenderFullscreenImage(IShader vs, IShader ps)
 		{
-			RenderInterface.SetFrameCallback(context =>
+			return RenderImage(context =>
 			{
 				context.DrawFullscreenQuad(vs, ps);
 			});
-
-			return RenderImage();
 		}
 
-		public void Dispatch()
+		public void Dispatch(FrameCallback callback)
 		{
 			// Run the renderer to trigger compute shaders.
-			_renderer.Dispatch(_src);
+			_renderer.Dispatch(_src, callback);
 		}
 
 		// Simple wrapper for the common 1D case.
 		public IEnumerable<T> DispatchToBuffer<T>(IShader cs, string outBufferVariable, int size, int shaderNumThreads) where T : struct =>
 			DispatchToBuffer<T>(cs, outBufferVariable, Tuple.Create(size, 1, 1), Tuple.Create(shaderNumThreads, 1, 1));
 
+		// TODO: Get num threads from shader reflection.
 		public IEnumerable<T> DispatchToBuffer<T>(IShader cs, string outBufferVariable, Tuple<int, int, int> size, Tuple<int, int, int> shaderNumThreads) where T : struct
 		{
 			// Create buffer to hold results.
@@ -87,13 +86,11 @@ namespace ShaderUnit.TestRenderer
 			int numThreadGroupsY = DivideCeil(size.Item2, shaderNumThreads.Item2);
 			int numThreadGroupsZ = DivideCeil(size.Item3, shaderNumThreads.Item3);
 
-			RenderInterface.SetFrameCallback(context =>
+			// Render a frame to dispatch the compute shader.
+			Dispatch(context =>
 			{
 				context.Dispatch(cs, numThreadGroupsX, numThreadGroupsY, numThreadGroupsY);
 			});
-
-			// Render a frame to dispatch the compute shader.
-			Dispatch();
 
 			// Read results back from the buffer
 			return outputBuffer.GetContents<T>();
