@@ -92,12 +92,6 @@ namespace SRPRendering
 		{
 			var absPath = _workspace.GetAbsolutePath(path);
 
-			// Ugh, Castle DynamicProxy doesn't pass through the null default value, so detect it.
-			if (generateMips == System.Reflection.Missing.Value)
-			{
-				generateMips = null;
-			}
-
 			MipGenerationMode mipGenerationMode = MipGenerationMode.None;
 			if (generateMips == null || generateMips.Equals(true))
 			{
