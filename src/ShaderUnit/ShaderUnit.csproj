@@ -92,7 +92,6 @@
     <Compile Include="ShaderTests\MyPixelShaderTest.cs" />
     <Compile Include="ShaderTests\MyShaderUnitTest.cs" />
     <Compile Include="ShaderTests\TextureTest.cs" />
-    <Compile Include="TestRenderer\FermiumReporter.cs" />
     <Compile Include="TestRenderer\FileSystemReporter.cs" />
     <Compile Include="TestRenderer\HlslTestHarness.cs" />
     <Compile Include="TestRenderer\ImageAssert.cs" />

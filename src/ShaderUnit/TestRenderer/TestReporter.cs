@@ -9,7 +9,7 @@ using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using ShaderUnit.Util;
 
-// In reality, this would have to go in the test assembly.
+// TODO: In reality, this would have to go in the test assembly.
 [assembly: ShaderUnit.TestRenderer.UseTestReporter]
 
 namespace ShaderUnit.TestRenderer
@@ -48,16 +48,9 @@ namespace ShaderUnit.TestRenderer
 
 		public TestReporter()
 		{
-			if (FermiumReporter.CanUse)
+			if (CIHelper.IsCI)
 			{
-				// Use Fermium if we can.
-				// I should finish Fermium one of these days...
-				_impl = new FermiumReporter();
-			}
-			else if (CIHelper.IsCI)
-			{
-				// Write to dirty html file in CI if we don't have Fermium
-				// (which we don't, cause I haven't written it yet).
+				// Write to dirty html file in CI.
 				_impl = new HtmlReporter();
 			}
 			else
