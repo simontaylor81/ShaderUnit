@@ -5,11 +5,8 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NUnit.Framework;
-using NUnit.Framework.Interfaces;
-using ShaderUnit.Util;
 
-namespace ShaderUnit.TestRenderer
+namespace ShaderUnit.Reporting
 {
 	// Interface for a test reporter implementation.
 	interface ITestReporter
@@ -21,7 +18,7 @@ namespace ShaderUnit.TestRenderer
 
 	// Fixture class for reporting test results. Doesn't do the actual reporting,
 	// just hands off to the actual reporter implementation that is appropriate.
-	public class TestReporter : ITestReporter
+	class TestReporter : ITestReporter
 	{
 		private readonly ITestReporter _impl;
 
@@ -79,25 +76,6 @@ namespace ShaderUnit.TestRenderer
 			{
 				await _impl.TestCompleteAsync(name, bSuccess, result);
 			}
-		}
-	}
-
-	// Class for handling initialisation and disposal of the reporter.
-	[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
-	public class UseTestReporterAttribute : Attribute, ITestAction
-	{
-		public ActionTargets Targets => ActionTargets.Suite;
-
-		public void BeforeTest(ITest test)
-		{
-			// TODO: Async?
-			TestReporter.StaticInitAsync().Wait();
-		}
-
-		public void AfterTest(ITest test)
-		{
-			// TODO: Async?
-			TestReporter.StaticDisposeAsync().Wait();
 		}
 	}
 }

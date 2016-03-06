@@ -88,18 +88,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestRenderer\FileSystemReporter.cs" />
+    <Compile Include="Reporting\FileSystemReporter.cs" />
+    <Compile Include="Reporting\UseTestReporterAttribute.cs" />
     <Compile Include="TestRenderer\HlslTestHarness.cs" />
     <Compile Include="TestRenderer\ImageAssert.cs" />
     <Compile Include="TestRenderer\RenderTestBase.cs" />
     <Compile Include="TestRenderer\RenderTestHarness.cs" />
     <Compile Include="TestRenderer\TestRenderer.cs" />
-    <Compile Include="TestRenderer\HtmlReporter.cs" />
-    <Compile Include="TestRenderer\TestReporter.cs" />
+    <Compile Include="Reporting\HtmlReporter.cs" />
+    <Compile Include="Reporting\TestReporter.cs" />
     <Compile Include="TestRenderer\TestWorkspace.cs" />
-    <Compile Include="Util\AppveyorCI.cs" />
-    <Compile Include="Util\CIHelper.cs" />
-    <Compile Include="Util\DummyCIProvider.cs" />
+    <Compile Include="Reporting\AppveyorCI.cs" />
+    <Compile Include="Reporting\CIHelper.cs" />
+    <Compile Include="Reporting\DummyCIProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

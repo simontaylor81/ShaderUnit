@@ -1,5 +1,4 @@
-﻿using ShaderUnit.Util;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -8,17 +7,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ShaderUnit.TestRenderer
+namespace ShaderUnit.Reporting
 {
-	public struct TestResult
+	class HtmlReporter : ITestReporter
 	{
-		public string name;
-		public bool bSuccess;
-		public Bitmap resultImage;
-	}
+		private struct TestResult
+		{
+			public string name;
+			public bool bSuccess;
+			public Bitmap resultImage;
+		}
 
-	public class HtmlReporter : ITestReporter
-	{
 		private List<TestResult> results = new List<TestResult>();
 
 		public Task TestCompleteAsync(string name, bool bSuccess, Bitmap result)

@@ -8,7 +8,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ShaderUnit.Util
+namespace ShaderUnit.Reporting
 {
 	// AppVeyor CI provider
 	internal class AppveyorCI : ICIProvider

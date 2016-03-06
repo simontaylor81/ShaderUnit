@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ShaderUnit.Util
+namespace ShaderUnit.Reporting
 {
 	// Continuous integration helper functionality.
 	// Currently supports Appveyor

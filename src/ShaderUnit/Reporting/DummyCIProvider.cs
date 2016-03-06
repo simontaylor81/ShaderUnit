@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ShaderUnit.Util
+namespace ShaderUnit.Reporting
 {
 	// Simple dummy CI provider for debugging.
 	internal class DummyCIProvider : ICIProvider

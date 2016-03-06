@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using ShaderUnit.TestRenderer;
 
-[assembly: ShaderUnit.TestRenderer.UseTestReporter]
+[assembly: ShaderUnit.Reporting.UseTestReporter]
 
 namespace ShaderUnit.SampleTests
 {
