@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reactive.Linq;
 
 using SharpDX.Direct3D;
 using SRPCommon.Interfaces;

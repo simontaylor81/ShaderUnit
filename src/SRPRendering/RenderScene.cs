@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SRPCommon.Scene;
-using SharpDX.Direct3D11;
 using SRPRendering.Resources;
 
 namespace SRPRendering
@@ -24,7 +23,6 @@ namespace SRPRendering
 		private readonly Dictionary<string, Texture> textures = new Dictionary<string, Texture>();
 		private readonly RenderDevice _device;
 		private readonly Scene _scene;
-		private readonly IDisposable _subscription;
 		private readonly SceneMeshCache _meshCache;
 
 		public IEnumerable<IPrimitive> Primitives => primitiveProxies;
@@ -38,13 +36,11 @@ namespace SRPRendering
 
 			// Create proxies now, and when the scene changes.
 			CreateProxies();
-			_subscription = scene.OnChanged.Subscribe(_ => CreateProxies());
 		}
 
 		public void Dispose()
 		{
 			_meshCache.Dispose();
-			_subscription.Dispose();
 			
 			foreach (var texture in textures.Values)
 			{

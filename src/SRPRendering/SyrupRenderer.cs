@@ -2,10 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive;
-using System.Reactive.Subjects;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
 
 using SharpDX;
 using SharpDX.Direct3D11;
@@ -13,7 +9,6 @@ using SRPCommon.Interfaces;
 using SRPCommon.Scene;
 using SRPCommon.Util;
 using SRPScripting;
-using Castle.DynamicProxy;
 using SharpDX.Mathematics.Interop;
 
 namespace SRPRendering
@@ -30,8 +25,7 @@ namespace SRPRendering
 			_scriptRenderControl = new ScriptRenderControl(workspace, device);
 			_disposables.Add(_scriptRenderControl);
 
-			// Generate wrapper proxy using Castle Dynamic Proxy to avoid direct script access to our internals.
-			ScriptInterface = new ProxyGenerator().CreateInterfaceProxyWithTarget<IRenderInterface>(_scriptRenderControl);
+			ScriptInterface = _scriptRenderControl;
 		}
 
 		private void Reset()
@@ -41,12 +35,6 @@ namespace SRPRendering
 			// Reset output logger so warnings are written again.
 			OutputLogger.Instance.ResetLogOnce();
 		}
-
-		// Fire redraw when it's requested, except when disallowed.
-		public IObservable<Unit> RedrawRequired => _redrawRequired.Where(_ => !_bIgnoreRedrawRequests);
-
-		private readonly Subject<Unit> _redrawRequired = new Subject<Unit>();
-		private bool _bIgnoreRedrawRequests;
 
 		public Scene Scene
 		{
@@ -66,7 +54,6 @@ namespace SRPRendering
 
 					// Missing scene can cause rendering to fail -- give it another try with the new one.
 					bScriptRenderError = false;
-					_redrawRequired.OnNext(Unit.Default);
 				}
 			}
 		}
@@ -87,9 +74,6 @@ namespace SRPRendering
 			{
 				return;
 			}
-
-			// Don't redraw viewports because of internal shader variable changes (e.g. bindings).
-			_bIgnoreRedrawRequests = true;
 
 			try
 			{
@@ -119,8 +103,6 @@ namespace SRPRendering
 				MinDepth = 0.0f,
 				MaxDepth = 0.0f,
 			} });
-
-			_bIgnoreRedrawRequests = false;
 		}
 
 		// Wrapper class that gets given to the script, acting as a firewall to prevent it from accessing this class directly.

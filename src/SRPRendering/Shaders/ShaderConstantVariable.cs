@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive;
-using System.Reactive.Subjects;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -97,7 +95,6 @@ namespace SRPRendering.Shaders
 			data.Write(value);
 
 			bDirty = true;
-			_subject.OnNext(Unit.Default);
 		}
 
 		// Get the current value of an individual component of the array.
@@ -122,7 +119,6 @@ namespace SRPRendering.Shaders
 			data.Write(value);
 
 			bDirty = true;
-			_subject.OnNext(Unit.Default);
 		}
 
 		// Reset to initial state.
@@ -131,12 +127,6 @@ namespace SRPRendering.Shaders
 			data.Position = 0;
 			data.Write(initialValue, 0, initialValue.Length);
 			bDirty = true;
-		}
-
-		// IObservable interface
-		public IDisposable Subscribe(IObserver<Unit> observer)
-		{
-			return _subject.Subscribe(observer);
 		}
 
 		// Constructors.
@@ -185,6 +175,5 @@ namespace SRPRendering.Shaders
 		private DataStream data;
 		private bool bDirty = true;
 		private byte[] initialValue;
-		private Subject<Unit> _subject = new Subject<Unit>();
 	}
 }
