@@ -10,40 +10,39 @@ using SRPCommon.Util;
 
 namespace SRPRendering
 {
-	public interface IShaderVariableBind
+	public interface IShaderVariableBinding
 	{
-		void UpdateVariable(ViewInfo viewInfo, IPrimitive primitive, IDictionary<string, dynamic> overrides);
-		bool AllowScriptOverride { get; }
+		void UpdateVariable(ViewInfo viewInfo, IPrimitive primitive);
 	}
 
-	class SimpleShaderVariableBind : IShaderVariableBind
+	class SimpleShaderVariableBind : IShaderVariableBinding
 	{
-		public SimpleShaderVariableBind(IShaderVariable variable, ShaderVariableBindSource source)
+		public SimpleShaderVariableBind(ShaderConstantVariable variable, ShaderVariableBindSource source)
 		{
 			this.variable = variable;
 			this.source = source;
 		}
 
-		public void UpdateVariable(ViewInfo viewInfo, IPrimitive primitive, IDictionary<string, dynamic> overrides)
+		public void UpdateVariable(ViewInfo viewInfo, IPrimitive primitive)
 		{
 			switch (source)
 			{
 				case ShaderVariableBindSource.WorldToProjectionMatrix:
-					variable.Set(viewInfo.WorldToViewMatrix * viewInfo.ViewToProjMatrix);
+					variable.SetValue(viewInfo.WorldToViewMatrix * viewInfo.ViewToProjMatrix);
 					return;
 
 				case ShaderVariableBindSource.ProjectionToWorldMatrix:
 					{
 						var matrix = viewInfo.WorldToViewMatrix * viewInfo.ViewToProjMatrix;
 						Matrix4x4.Invert(matrix, out matrix);
-						variable.Set(matrix);
+						variable.SetValue(matrix);
 					}
 					return;
 
 				case ShaderVariableBindSource.LocalToWorldMatrix:
 					if (primitive != null)
 					{
-						variable.Set(primitive.LocalToWorld);
+						variable.SetValue(primitive.LocalToWorld);
 						return;
 					}
 					break;
@@ -53,7 +52,7 @@ namespace SRPRendering
 					{
 						var matrix = primitive.LocalToWorld;
 						Matrix4x4.Invert(matrix, out matrix);
-						variable.Set(matrix);
+						variable.SetValue(matrix);
 						return;
 					}
 					break;
@@ -63,13 +62,13 @@ namespace SRPRendering
 					{
 						var matrix = primitive.LocalToWorld;
 						Matrix4x4.Invert(matrix, out matrix);
-						variable.Set(Matrix4x4.Transpose(matrix));
+						variable.SetValue(Matrix4x4.Transpose(matrix));
 						return;
 					}
 					break;
 
 				case ShaderVariableBindSource.CameraPosition:
-					variable.Set(viewInfo.EyePosition);
+					variable.SetValue(viewInfo.EyePosition);
 					return;
 			}
 
@@ -77,15 +76,13 @@ namespace SRPRendering
 			variable.SetDefault();
 		}
 
-		public bool AllowScriptOverride => false;
-
-		private IShaderVariable variable;
+		private ShaderConstantVariable variable;
 		private ShaderVariableBindSource source;
 	}
 
-	class MaterialShaderVariableBind : IShaderVariableBind
+	class MaterialShaderVariableBind : IShaderVariableBinding
 	{
-		public MaterialShaderVariableBind(IShaderVariable variable, string source)
+		public MaterialShaderVariableBind(ShaderConstantVariable variable, string source)
 		{
 			this.variable = variable;
 			this.source = source;
@@ -96,7 +93,7 @@ namespace SRPRendering
 			}
 		}
 
-		public void UpdateVariable(ViewInfo viewInfo, IPrimitive primitive, IDictionary<string, dynamic> overrides)
+		public void UpdateVariable(ViewInfo viewInfo, IPrimitive primitive)
 		{
 			if (primitive != null && primitive.Material != null)
 			{
@@ -120,65 +117,24 @@ namespace SRPRendering
 			variable.SetDefault();
 		}
 
-		public bool AllowScriptOverride => false;
-
-		private IShaderVariable variable;
+		private ShaderConstantVariable variable;
 		private string source;
 	}
 
-	class SimpleShaderVariableBind<T> : IShaderVariableBind where T : struct
+	class DirectShaderVariableBind<T> : IShaderVariableBinding where T : struct
 	{
 		private T _value;
-		private IShaderVariable _variable;
+		private ShaderConstantVariable _variable;
 
-		public SimpleShaderVariableBind(IShaderVariable variable, T value)
+		public DirectShaderVariableBind(ShaderConstantVariable variable, T value)
 		{
 			_variable = variable;
 			_value = value;
 		}
 
-		public bool AllowScriptOverride => false;
-
-		public void UpdateVariable(ViewInfo viewInfo, IPrimitive primitive, IDictionary<string, dynamic> overrides)
+		public void UpdateVariable(ViewInfo viewInfo, IPrimitive primitive)
 		{
-			_variable.Set(_value);
+			_variable.SetValue(_value);
 		}
-	}
-
-	// TODO: Remove?
-	class ScriptOverrideShaderVariableBind : IShaderVariableBind
-	{
-		public ScriptOverrideShaderVariableBind(IShaderVariable variable)
-		{
-			this.variable = variable;
-		}
-
-		public void UpdateVariable(ViewInfo viewInfo, IPrimitive primitive, IDictionary<string, dynamic> overrides)
-		{
-			dynamic overriddenValue;
-
-			// Is the variable overridden this drawcall?
-			if (overrides != null && overrides.TryGetValue(variable.Name, out overriddenValue))
-			{
-				try
-				{
-					throw new NotImplementedException("TODO: Shader overrides");
-					//variable.SetFromDynamic(overriddenValue);
-				}
-				catch (ShaderUnitException ex)
-				{
-					throw new ShaderUnitException("Incorrect type for shader variable override: " + variable.Name, ex);
-				}
-			}
-			else
-			{
-				// Not overridden, so set to default.
-				variable.SetDefault();
-			}
-		}
-
-		public bool AllowScriptOverride => true;
-
-		private IShaderVariable variable;
 	}
 }

@@ -9,6 +9,7 @@ using SharpDX.Direct3D11;
 using SharpDX.Mathematics.Interop;
 using SRPCommon.Util;
 using SRPScripting;
+using SRPScripting.Shader;
 
 namespace SRPRendering
 {
@@ -17,14 +18,12 @@ namespace SRPRendering
 		public ScriptRenderContext(DeviceContext deviceContext,
 								   ViewInfo viewInfo,
 								   RenderScene scene,
-								   IList<IShader> shaders,
 								   IList<RenderTarget> renderTargets,
 								   IGlobalResources globalResources)
 		{
 			this.deviceContext = deviceContext;
 			this.viewInfo = viewInfo;
 			this.scene = scene;
-			this.shaders = shaders;
 			this.renderTargetResources = renderTargets;
 			_globalResources = globalResources;
 		}
@@ -32,17 +31,16 @@ namespace SRPRendering
 		#region IRenderContext interface
 
 		// Draw the entire scene.
-		public void DrawScene(dynamic vertexShaderIndex,
-							  dynamic pixelShaderIndex,
+		public void DrawScene(IShader vertexShaderInterface,
+							  IShader pixelShaderInterface,
 							  RastState rastState = null,
 							  SRPScripting.DepthStencilState depthStencilState = null,
 							  SRPScripting.BlendState blendState = null,
 							  IEnumerable<object> renderTargetHandles = null,
-							  object depthBuffer = null,
-							  IDictionary<string, dynamic> shaderVariableOverrides = null)
+							  object depthBuffer = null)
 		{
-			Shader vertexShader = GetShader(vertexShaderIndex);
-			Shader pixelShader = GetShader(pixelShaderIndex);
+			Shader vertexShader = GetShader(vertexShaderInterface);
+			Shader pixelShader = GetShader(pixelShaderInterface);
 
 			// Vertex shader is not optional.
 			if (vertexShader == null)
@@ -66,7 +64,7 @@ namespace SRPRendering
 			// Draw each mesh.
 			foreach (var proxy in scene.Primitives)
 			{
-				UpdateShaders(vertexShader, pixelShader, proxy, shaderVariableOverrides);
+				UpdateShaders(vertexShader, pixelShader, proxy);
 				proxy.Mesh.Draw(deviceContext);
 			}
 
@@ -75,17 +73,16 @@ namespace SRPRendering
 		}
 
 		// Draw a unit sphere.
-		public void DrawSphere(dynamic vertexShaderIndex,
-							   dynamic pixelShaderIndex,
+		public void DrawSphere(IShader vertexShaderInterface,
+							   IShader pixelShaderInterface,
 							   RastState rastState = null,
 							   SRPScripting.DepthStencilState depthStencilState = null,
 							   SRPScripting.BlendState blendState = null,
 							   IEnumerable<object> renderTargetHandles = null,
-							   object depthBuffer = null,
-							   IDictionary<string, dynamic> shaderVariableOverrides = null)
+							   object depthBuffer = null)
 		{
-			Shader vertexShader = GetShader(vertexShaderIndex);
-			Shader pixelShader = GetShader(pixelShaderIndex);
+			Shader vertexShader = GetShader(vertexShaderInterface);
+			Shader pixelShader = GetShader(pixelShaderInterface);
 
 			// Vertex shader is not optional.
 			if (vertexShader == null)
@@ -103,7 +100,7 @@ namespace SRPRendering
 			SetShaders(vertexShader, pixelShader);
 
 			// Draw the sphere mesh.
-			UpdateShaders(vertexShader, pixelShader, null, shaderVariableOverrides);		// TODO: Pass a valid proxy here?
+			UpdateShaders(vertexShader, pixelShader, null);		// TODO: Pass a valid proxy here?
 			_globalResources.SphereMesh.Draw(deviceContext);
 
 			// Force all state to defaults -- we're completely stateless.
@@ -111,13 +108,12 @@ namespace SRPRendering
 		}
 
 		// Draw a fullscreen quad.
-		public void DrawFullscreenQuad(dynamic vertexShaderIndex,
-									   dynamic pixelShaderIndex,
-									   IEnumerable<object> renderTargetHandles = null,
-									   IDictionary<string, dynamic> shaderVariableOverrides = null)
+		public void DrawFullscreenQuad(IShader vertexShaderInterface,
+									   IShader pixelShaderInterface,
+									   IEnumerable<object> renderTargetHandles = null)
 		{
-			Shader vertexShader = GetShader(vertexShaderIndex);
-			Shader pixelShader = GetShader(pixelShaderIndex);
+			Shader vertexShader = GetShader(vertexShaderInterface);
+			Shader pixelShader = GetShader(pixelShaderInterface);
 
 			// Vertex shader is not optional.
 			if (vertexShader == null)
@@ -135,7 +131,7 @@ namespace SRPRendering
 			SetShaders(vertexShader, pixelShader);
 
 			// Draw the quad.
-			UpdateShaders(vertexShader, pixelShader, null, shaderVariableOverrides);
+			UpdateShaders(vertexShader, pixelShader, null);
 			_globalResources.FullscreenQuad.Draw(deviceContext);
 
 			// Force all state to defaults -- we're completely stateless.
@@ -143,17 +139,16 @@ namespace SRPRendering
 		}
 
 		// Dispatch a compute shader.
-		public void Dispatch(dynamic shaderHandle, int numGroupsX, int numGroupsY, int numGroupsZ,
-							 IDictionary<string, dynamic> shaderVariableOverrides = null)
+		public void Dispatch(IShader shaderInterface, int numGroupsX, int numGroupsY, int numGroupsZ)
 		{
-			Shader cs = GetShader(shaderHandle);
+			Shader cs = GetShader(shaderInterface);
 			if (cs == null)
 			{
 				throw new ShaderUnitException("Dispatch: compute shader is required");
 			}
 
 			cs.Set(deviceContext);
-			cs.UpdateVariables(deviceContext, viewInfo, null, shaderVariableOverrides, _globalResources);
+			cs.UpdateVariables(deviceContext, viewInfo, null, _globalResources);
 			deviceContext.Dispatch(numGroupsX, numGroupsY, numGroupsZ);
 
 			// Enforce statelessness.
@@ -208,7 +203,7 @@ namespace SRPRendering
 
 				// Set shader constants.
 				_globalResources.BasicShaders.SolidColourShaderVar.Set(col);
-				UpdateShaders(_globalResources.BasicShaders.BasicSceneVS, _globalResources.BasicShaders.SolidColourPS, new SimplePrimitiveProxy(transform), null);
+				UpdateShaders(_globalResources.BasicShaders.BasicSceneVS, _globalResources.BasicShaders.SolidColourPS, new SimplePrimitiveProxy(transform));
 
 				// Set input layout
 				deviceContext.InputAssembler.InputLayout = _globalResources.InputLayoutCache.GetInputLayout(
@@ -231,17 +226,18 @@ namespace SRPRendering
 		#endregion
 
 		// Access a shader by handle.
-		private Shader GetShader(dynamic handle, [CallerMemberName] string caller = null)
+		private Shader GetShader(IShader ishader, [CallerMemberName] string caller = null)
 		{
 			// null means no shader.
-			if (handle == null)
+			if (ishader == null)
 				return null;
 
-			// If it's not null, but not a valid index, throw.
-			if (handle.index < 0 || handle.index >= shaders.Count)
+			// If it's not null, but not a valid concrete shader, throw.
+			var shader = ishader as Shader;
+			if (shader == null)
 				throw new ShaderUnitException(string.Format("Invalid shader given to {0}.", caller));
 
-			return shaders[handle.index];
+			return shader;
 		}
 
 		// Access a render target by handle.
@@ -250,14 +246,14 @@ namespace SRPRendering
 			var handle = handleObj as RenderTargetHandle;
 
 			// If it's null or not a valid index, throw.
-			if (handle == null || handle.index < 0 || handle.index >= shaders.Count)
+			if (handle == null || handle.index < 0 || handle.index >= renderTargetResources.Count)
 				throw new ShaderUnitException(string.Format("Invalid render target given to {0}.", caller));
 
 			return renderTargetResources[handle.index];
 		}
 
 		// Set the given shaders to the device.
-		private void SetShaders(params IShader[] shaders)
+		private void SetShaders(params Shader[] shaders)
 		{
 			foreach (var shader in shaders)
 			{
@@ -267,15 +263,15 @@ namespace SRPRendering
 		}
 
 		// Update the variables of the given shaders, unless they're null.
-		private void UpdateShaders(IShader vs, IShader ps, IPrimitive primitive, IDictionary<string, dynamic> variableOverrides)
+		private void UpdateShaders(Shader vs, Shader ps, IPrimitive primitive)
 		{
 			if (vs != null)
-				vs.UpdateVariables(deviceContext, viewInfo, primitive, variableOverrides, _globalResources);
+				vs.UpdateVariables(deviceContext, viewInfo, primitive, _globalResources);
 			else
 				deviceContext.VertexShader.Set(null);
 
 			if (ps != null)
-				ps.UpdateVariables(deviceContext, viewInfo, primitive, variableOverrides, _globalResources);
+				ps.UpdateVariables(deviceContext, viewInfo, primitive, _globalResources);
 			else
 				deviceContext.PixelShader.Set(null);
 		}
@@ -359,7 +355,6 @@ namespace SRPRendering
 
 		private DeviceContext deviceContext;
 		private RenderScene scene;
-		private IList<IShader> shaders;
 		private IList<RenderTarget> renderTargetResources;
 		private ViewInfo viewInfo;
 		private IGlobalResources _globalResources;

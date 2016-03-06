@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SRPScripting.Shader;
 
 namespace SRPScripting
 {
@@ -22,12 +23,12 @@ namespace SRPScripting
 	// Interface to the rendering system exposed to the scripting system.
 	public interface IRenderInterface
 	{
-		object CompileShader(string filename, string entryPoint, string profile,
+		IShader CompileShader(string filename, string entryPoint, string profile,
 			IDictionary<string, object> defines = null);
 
 		// Compile a shader from an in-memory string.
 		// All includes still must come from the file system.
-		object CompileShaderFromString(string source, string entryPoint, string profile,
+		IShader CompileShaderFromString(string source, string entryPoint, string profile,
 			IDictionary<string, object> defines = null);
 
 		// Create a render target of dimensions equal to the viewport.
@@ -41,16 +42,6 @@ namespace SRPScripting
 
 		// Load a texture from a file.
 		object LoadTexture(string path, object generateMips = null);
-
-		void BindShaderVariable(object shader, string var, ShaderVariableBindSource source);
-		void BindShaderVariableToMaterial(object shader, string var, string param);
-		void SetShaderVariable<T>(object shader, string var, T value) where T : struct;
-		void ShaderVariableIsScriptOverride(object shader, string var);
-
-		void BindShaderResourceToMaterial(object shader, string var, string param, object fallback = null);
-		void SetShaderResourceVariable(object shader, string var, object value);
-		void SetShaderSamplerState(object shader, string samplerName, SamplerState state);
-		void SetShaderUavVariable(object shader, string var, IBuffer value);
 
 		// Still unsure if this is the best way to go.
 		void SetFrameCallback(FrameCallback callback);

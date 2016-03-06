@@ -7,12 +7,13 @@ using System.Threading.Tasks;
 using SharpDX.Direct3D11;
 using System.Security.Cryptography;
 using SharpDX.Direct3D;
+using SRPScripting.Shader;
 
 namespace SRPRendering
 {
-	public interface IShaderCache : IDisposable
+	interface IShaderCache : IDisposable
 	{
-		IShader GetShader(string filename, string entryPoint, string profile,
+		Shader GetShader(string filename, string entryPoint, string profile,
 			Func<string, string> includeLookup, ShaderMacro[] defines);
 	}
 
@@ -33,7 +34,7 @@ namespace SRPRendering
 			cache.Clear();
 		}
 
-		public IShader GetShader(string filename, string entryPoint, string profile,
+		public Shader GetShader(string filename, string entryPoint, string profile,
 			Func<string, string> includeLookup, ShaderMacro[] defines)
 		{
 			defines = defines ?? new ShaderMacro[0];
@@ -55,7 +56,7 @@ namespace SRPRendering
 					IncludesEqual(existingEntry.shader.IncludedFiles, includeLookup))
 				{
 					// Cache hit -- return existing shader.
-					existingEntry.shader.Reset();
+					//existingEntry.shader.Reset();
 					return existingEntry.shader;
 				}
 				else
@@ -78,7 +79,7 @@ namespace SRPRendering
 			return shader;
 		}
 
-		private IEnumerable<string> GetAllPaths(string baseFile, IShader shader)
+		private IEnumerable<string> GetAllPaths(string baseFile, Shader shader)
 		{
 			return shader.IncludedFiles.Select(f => f.ResolvedFile)
 				.StartWith(baseFile);

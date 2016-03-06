@@ -7,14 +7,14 @@ using SharpDX.Direct3D11;
 
 namespace SRPRendering
 {
-	public interface IShaderResourceVariableBind
+	interface IShaderResourceVariableBinding
 	{
 		ShaderResourceView GetResource(IPrimitive primitive, ViewInfo viewInfo, IGlobalResources globalResources);
 	}
 
-	class MaterialShaderResourceVariableBind : IShaderResourceVariableBind
+	class MaterialShaderResourceVariableBinding : IShaderResourceVariableBinding
 	{
-		public MaterialShaderResourceVariableBind(string paramName, Texture fallback)
+		public MaterialShaderResourceVariableBinding(string paramName, Texture fallback)
 		{
 			_paramName = paramName;
 			_fallback = fallback;
@@ -41,9 +41,9 @@ namespace SRPRendering
 		private readonly Texture _fallback;
 	}
 
-	class TextureShaderResourceVariableBind : IShaderResourceVariableBind
+	class TextureShaderResourceVariableBinding : IShaderResourceVariableBinding
 	{
-		public TextureShaderResourceVariableBind(Texture texture)
+		public TextureShaderResourceVariableBinding(Texture texture)
 		{
 			this.texture = texture;
 		}
@@ -56,9 +56,9 @@ namespace SRPRendering
 		private readonly Texture texture;
 	}
 
-	class RenderTargetShaderResourceVariableBind : IShaderResourceVariableBind
+	class RenderTargetShaderResourceVariableBinding : IShaderResourceVariableBinding
 	{
-		public RenderTargetShaderResourceVariableBind(RenderTargetDescriptor descriptor)
+		public RenderTargetShaderResourceVariableBinding(RenderTargetDescriptor descriptor)
 		{
 			this.descriptor = descriptor;
 		}
@@ -72,7 +72,7 @@ namespace SRPRendering
 		private readonly RenderTargetDescriptor descriptor;
 	}
 
-	class DefaultDepthBufferShaderResourceVariableBind : IShaderResourceVariableBind
+	class DefaultDepthBufferShaderResourceVariableBinding : IShaderResourceVariableBinding
 	{
 		public ShaderResourceView GetResource(IPrimitive primitive, ViewInfo viewInfo, IGlobalResources globalResources)
 		{
@@ -80,11 +80,11 @@ namespace SRPRendering
 		}
 	}
 
-	class BufferShaderResourceVariableBind : IShaderResourceVariableBind
+	class BufferShaderResourceVariableBinding : IShaderResourceVariableBinding
 	{
 		private readonly Resources.Buffer _buffer;
 
-		public BufferShaderResourceVariableBind(Resources.Buffer buffer)
+		public BufferShaderResourceVariableBinding(Resources.Buffer buffer)
 		{
 			_buffer = buffer;
 		}

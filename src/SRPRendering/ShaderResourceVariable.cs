@@ -6,33 +6,44 @@ using System.Text;
 using System.Threading.Tasks;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
+using SRPCommon.Util;
+using SRPScripting.Shader;
 
 namespace SRPRendering
 {
-	public interface IShaderResourceVariable
-	{
-		/// <summary>
-		/// Name of the variable.
-		/// </summary>
-		string Name { get; }
-
-		ShaderResourceView Resource { get; set; }
-
-		IShaderResourceVariableBind Bind { get; set; }
-
-		/// <summary>
-		/// Submit the current value to the graphics device.
-		/// </summary>
-		void SetToDevice(DeviceContext context);
-	}
-
 	class ShaderResourceVariable : IShaderResourceVariable
 	{
 		// IShaderVariable interface.
 		public string Name { get; }
 		public ShaderResourceView Resource { get; set; }
 
-		public IShaderResourceVariableBind Bind { get; set; }
+		public void Set(object value)
+		{
+			throw new NotImplementedException("TODO: Shader resource abstraction");
+		}
+
+		public void BindToMaterial(string materialParam, object fallback = null)
+		{
+			if (fallback != null)
+			{
+				throw new NotImplementedException("TODO: Shader resource abstraction");
+			}
+			Binding = new MaterialShaderResourceVariableBinding(materialParam, null);
+		}
+
+		private IShaderResourceVariableBinding _binding;
+		public IShaderResourceVariableBinding Binding
+		{
+			get { return _binding; }
+			set
+			{
+				if (_binding != null)
+				{
+					throw new ShaderUnitException("Attempting to bind already bound shader variable: " + Name);
+				}
+				_binding = value;
+			}
+		}
 
 		public void SetToDevice(DeviceContext context)
 		{

@@ -10,59 +10,11 @@ using SharpDX.Direct3D11;
 using SharpDX.D3DCompiler;
 using SharpDX;
 using SharpDX.Direct3D;
+using SRPScripting.Shader;
 
 namespace SRPRendering
 {
-	public enum ShaderFrequency
-	{
-		Vertex,
-		Pixel,
-		Compute,
-		MAX
-	}
-
-	public struct IncludedFile
-	{
-		public string SourceName;		// Original name from the #include line.
-		public string ResolvedFile;		// File path that it was resolved to.
-	}
-
-	public interface IShader : IDisposable
-	{
-		// Bind the shader to the device.
-		void Set(DeviceContext context);
-
-		// Upload constants if required.
-		void UpdateVariables(DeviceContext context, ViewInfo viewInfo, IPrimitive primitive, IDictionary<string, dynamic> overrides, IGlobalResources globalResources);
-
-		// Reset to the same state as immediately after compile.
-		void Reset();
-
-		IEnumerable<IShaderVariable> Variables { get; }
-
-		// Find a variable by name.
-		IShaderVariable FindVariable(string name);
-
-		// Find a resource variable by name.
-		IShaderResourceVariable FindResourceVariable(string name);
-
-		// Find a sample variable by name.
-		IShaderSamplerVariable FindSamplerVariable(string name);
-
-		// Find a UAV variable by name.
-		IShaderUavVariable FindUavVariable(string name);
-
-		// Input signature. Vertex shader only.
-		ShaderSignature Signature { get; }
-
-		// Frequency (i.e. type) of shader.
-		ShaderFrequency Frequency { get; }
-
-		// List of files that were included by this shader.
-		IEnumerable<IncludedFile> IncludedFiles { get; }
-	}
-
-	class Shader : IShader
+	class Shader : IShader, IDisposable
 	{
 		private Shader(Device device, string profile, IncludeHandler includeHandler, Func<ShaderBytecode> compiler)
 		{
@@ -77,17 +29,17 @@ namespace SRPRendering
 					case "vs":
 						_vertexShader = new VertexShader(device, bytecode);
 						Signature = ShaderSignature.GetInputSignature(bytecode);
-						_frequency = ShaderFrequency.Vertex;
+						Frequency = ShaderFrequency.Vertex;
 						break;
 
 					case "ps":
 						_pixelShader = new PixelShader(device, bytecode);
-						_frequency = ShaderFrequency.Pixel;
+						Frequency = ShaderFrequency.Pixel;
 						break;
 
 					case "cs":
 						_computeShader = new ComputeShader(device, bytecode);
-						_frequency = ShaderFrequency.Compute;
+						Frequency = ShaderFrequency.Compute;
 						break;
 
 					default:
@@ -155,6 +107,58 @@ namespace SRPRendering
 			}
 		}
 
+		// IShader interface.
+
+		// Find a variable by name.
+		public IShaderConstantVariable FindConstantVariable(string name)
+		{
+			var variable = Variables.FirstOrDefault(v => v.Name == name);
+			if (variable == null)
+			{
+				throw new ShaderUnitException("Could not find shader variable: " + name);
+			}
+			return variable;
+		}
+
+		// Find a resource variable by name.
+		public IShaderResourceVariable FindResourceVariable(string name)
+		{
+			var variable = _resourceVariables.FirstOrDefault(v => v.Name == name);
+			if (variable == null)
+			{
+				throw new ShaderUnitException("Could not find shader resource variable: " + name);
+			}
+			return variable;
+		}
+
+		// Find a sampler variable by name.
+		public IShaderSamplerVariable FindSamplerVariable(string name)
+		{
+			var variable = _samplerVariables.FirstOrDefault(v => v.Name == name);
+			if (variable == null)
+			{
+				throw new ShaderUnitException("Could not find shader sampler variable: " + name);
+			}
+			return variable;
+		}
+
+		// Find a UAV variable by name.
+		public IShaderUavVariable FindUavVariable(string name)
+		{
+			var variable = _uavVariables.FirstOrDefault(v => v.Name == name);
+			if (variable == null)
+			{
+				throw new ShaderUnitException("Could not find shader UAV variable: " + name);
+			}
+			return variable;
+		}
+
+		// Frequency (i.e. type) of shader.
+		public ShaderFrequency Frequency { get; }
+
+		// List of files that were included by this shader.
+		public IEnumerable<IncludedFile> IncludedFiles { get; }
+
 		private static Exception TranslateException(CompilationException ex, string baseFilename, Func<string, string> includeLookup)
 		{
 			// The shader compiler error messages contain the name used to
@@ -191,6 +195,9 @@ namespace SRPRendering
 			OutputLogger.Instance.Log(LogCategory.ShaderCompile, message);
 			return new ShaderUnitException("Shader compilation failed. See Shader Compilation log for details.", ex);
 		}
+
+		// Get all variables from all cbuffers.
+		private IEnumerable<ShaderConstantVariable> Variables => _cbuffers.SelectMany(cbuffer => cbuffer.Variables);
 
 		private static bool IsShaderResource(ShaderInputType type) =>
 			type == ShaderInputType.Texture ||
@@ -236,39 +243,30 @@ namespace SRPRendering
 		}
 
 		// Upload constants if required.
-		public void UpdateVariables(DeviceContext context, ViewInfo viewInfo, IPrimitive primitive, IDictionary<string, dynamic> overrides, IGlobalResources globalResources)
+		public void UpdateVariables(DeviceContext context, ViewInfo viewInfo, IPrimitive primitive, IGlobalResources globalResources)
 		{
 			// First, update the value of bound and overridden variables.
 			foreach (var variable in Variables)
 			{
 				// Is the variable bound?
-				if (variable.Bind != null)
+				if (variable.Binding != null)
 				{
-					variable.Bind.UpdateVariable(viewInfo, primitive, overrides);
-				}
-
-				// Warn if the user is attempting to override the value, but the variable has not been
-				// set as overridable.
-				if (overrides != null &&
-					overrides.ContainsKey(variable.Name) &&
-					(variable.Bind == null || !variable.Bind.AllowScriptOverride))
-				{
-					OutputLogger.Instance.LogLineOnce(LogCategory.Script,
-						"Warning: attempt to override shader variable {0} which has not been marked as overridable. Call ShaderVariableIsScriptOverride to mark it thus.",
-						variable.Name);
+					variable.Binding.UpdateVariable(viewInfo, primitive);
 				}
 			}
 
 			// Next, do the actual upload the constant buffers.
 			foreach (var cubffer in _cbuffers)
+			{
 				cubffer.Update(context);
+			}
 
 			// Update resource variables too.
 			foreach (var resourceVariable in _resourceVariables)
 			{
-				if (resourceVariable.Bind != null)
+				if (resourceVariable.Binding != null)
 				{
-					resourceVariable.Resource = resourceVariable.Bind.GetResource(primitive, viewInfo, globalResources);
+					resourceVariable.Resource = resourceVariable.Binding.GetResource(primitive, viewInfo, globalResources);
 				}
 
 				resourceVariable.SetToDevice(context);
@@ -277,11 +275,7 @@ namespace SRPRendering
 			// And samplers.
 			foreach (var samplerVariable in _samplerVariables)
 			{
-				if (samplerVariable.Bind != null)
-				{
-					samplerVariable.State = samplerVariable.Bind.GetState(primitive, viewInfo, globalResources);
-				}
-				samplerVariable.SetToDevice(context);
+				samplerVariable.SetToDevice(context, globalResources);
 			}
 
 			// And UAVs.
@@ -291,62 +285,6 @@ namespace SRPRendering
 			}
 		}
 
-		// Reset to the same state as immediately after compile.
-		public void Reset()
-		{
-			foreach (var variable in Variables)
-			{
-				// Restore initial value if the variable was bound.
-				// If it wasn't, we keep the original value so the user doesn't lose their settings.
-				if (variable.Bind != null)
-				{
-					// Restore default value.
-					variable.SetDefault();
-
-					// Clear bind.
-					variable.Bind = null;
-				}
-			}
-
-			// Do the same for resource, sampler and UAV variables.
-			foreach (var resourceVariable in _resourceVariables)
-			{
-				resourceVariable.Resource = null;
-				resourceVariable.Bind = null;
-			}
-
-			foreach (var samplerVariable in _samplerVariables)
-			{
-				samplerVariable.State = null;
-				samplerVariable.Bind = null;
-			}
-
-			foreach (var uavVariable in _uavVariables)
-			{
-				uavVariable.UAV = null;
-			}
-		}
-
-		// Get all variables from all cbuffers.
-		public IEnumerable<IShaderVariable> Variables
-			=> from cbuffer in _cbuffers from variable in cbuffer.Variables select variable;
-
-		// Find a variable by name.
-		public IShaderVariable FindVariable(string name)
-			=> Variables.FirstOrDefault(v => v.Name == name);
-
-		// Find a resource variable by name.
-		public IShaderResourceVariable FindResourceVariable(string name)
-			=> _resourceVariables.FirstOrDefault(v => v.Name == name);
-
-		// Find a sampler variable by name.
-		public IShaderSamplerVariable FindSamplerVariable(string name)
-			=> _samplerVariables.FirstOrDefault(v => v.Name == name);
-
-		// Find a UAV variable by name.
-		public IShaderUavVariable FindUavVariable(string name)
-			=> _uavVariables.FirstOrDefault(v => v.Name == name);
-
 		// Actual shader. Only one of these is non-null.
 		private VertexShader _vertexShader;
 		private PixelShader _pixelShader;
@@ -354,13 +292,6 @@ namespace SRPRendering
 
 		// Input signature. Vertex shader only.
 		public ShaderSignature Signature { get; }
-
-		// Frequency (i.e. type) of shader.
-		private readonly ShaderFrequency _frequency;
-		public ShaderFrequency Frequency => _frequency;
-
-		// List of files that were included by this shader.
-		public IEnumerable<IncludedFile> IncludedFiles { get; }
 
 		// Constant buffer info.
 		private ConstantBuffer[] _cbuffers;

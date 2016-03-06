@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using SRPScripting.Shader;
 
 namespace SRPScripting
 {
@@ -11,36 +12,32 @@ namespace SRPScripting
 	{
 		// Draw the full scene.
 		void DrawScene(
-			dynamic vertexShaderIndex,
-			dynamic pixelShaderIndex,
+			IShader vertexShaderIndex,
+			IShader pixelShaderIndex,
 			RastState rastState = null,
 			DepthStencilState depthStencilState = null,
 			BlendState blendState = null,
 			IEnumerable<object> renderTargets = null,
-			object depthBuffer = null,
-			IDictionary<string, dynamic> shaderVariableOverrides = null);
+			object depthBuffer = null);
 
 		// Draw a shaded sphere.
 		void DrawSphere(
-			dynamic vertexShaderIndex,
-			dynamic pixelShaderIndex,
+			IShader vertexShaderIndex,
+			IShader pixelShaderIndex,
 			RastState rastState = null,
 			DepthStencilState depthStencilState = null,
 			BlendState blendState = null,
 			IEnumerable<object> renderTargets = null,
-			object depthBuffer = null,
-			IDictionary<string, dynamic> shaderVariableOverrides = null);
+			object depthBuffer = null);
 
 		// Draw a fullscreen quad.
 		void DrawFullscreenQuad(
-			dynamic vertexShaderIndex,
-			dynamic pixelShaderIndex,
-			IEnumerable<object> renderTargets = null,
-			IDictionary<string, dynamic> shaderVariableOverrides = null);
+			IShader vertexShaderIndex,
+			IShader pixelShaderIndex,
+			IEnumerable<object> renderTargets = null);
 
 		// Dispatch a compute shader.
-		void Dispatch(dynamic shader, int numGroupsX, int numGroupsY, int numGroupsZ,
-			IDictionary<string, dynamic> shaderVariableOverrides = null);
+		void Dispatch(IShader shader, int numGroupsX, int numGroupsY, int numGroupsZ);
 
 		// Clear render targets.
 		void Clear(Vector4 colour, IEnumerable<object> renderTargets = null);

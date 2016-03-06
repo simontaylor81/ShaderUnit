@@ -25,7 +25,7 @@ namespace SRPRendering
 	{
 		private readonly RenderDevice _device;
 		private readonly IWorkspace _workspace;
-		private readonly IShader _vertexShader;
+		private readonly Shader _vertexShader;
 
 		public MipGenerator(RenderDevice device, IWorkspace workspace)
 		{
@@ -85,8 +85,8 @@ namespace SRPRendering
 			// Compile pixel shader.
 			var pixelShader = _device.GlobalResources.ShaderCache.GetShader(
 				RenderUtils.GetShaderFilename("GenMipsPS.hlsl"), "Main", "ps_4_0", includeHandler, GetDefines(isCubemap));
-			var destMipVariable = pixelShader.FindVariable("DestMip");
-			var arraySliceVariable = pixelShader.FindVariable("ArraySlice");
+			var destMipVariable = pixelShader.FindConstantVariable("DestMip");
+			var arraySliceVariable = pixelShader.FindConstantVariable("ArraySlice");
 
 			var texDesc = texture.Texture2D.Description;
 			int mipWidth = texDesc.Width >> 1;
@@ -124,7 +124,7 @@ namespace SRPRendering
 					for (int arraySlice = 0; arraySlice < numArraySlices; arraySlice++)
 					{
 						arraySliceVariable?.Set(arraySlice);
-						pixelShader.UpdateVariables(context, null, null, null, null);
+						pixelShader.UpdateVariables(context, null, null, null);
 
 						// Render 'fullscreen' quad to downsample the mip.
 						_device.GlobalResources.FullscreenQuad.Draw(context);
@@ -158,13 +158,13 @@ namespace SRPRendering
 		}
 
 		// Bind texture and samplers.
-		private void BindResources(IShader ps, Texture texture)
+		private void BindResources(Shader ps, Texture texture)
 		{
 			// Bind the texture itself.
 			var texVariable = ps.FindResourceVariable("Texture");
 			if (texVariable != null)
 			{
-				texVariable.Resource = texture.SRV;
+				texVariable.Set(texture);
 			}
 
 			// Bind samplers.
@@ -173,12 +173,12 @@ namespace SRPRendering
 		}
 
 		// Simpler helper for setting samplers by name using a state from the cache.
-		private void SetSampler(IShader shader, string name, SamplerState state)
+		private void SetSampler(Shader shader, string name, SamplerState state)
 		{
 			var sampler = shader.FindSamplerVariable(name);
 			if (sampler != null)
 			{
-				sampler.State = _device.GlobalResources.SamplerStateCache.Get(state.ToD3D11());
+				sampler.Set(state);
 			}
 		}
 

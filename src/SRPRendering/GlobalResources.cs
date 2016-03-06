@@ -9,7 +9,7 @@ using System.Reactive.Disposables;
 
 namespace SRPRendering
 {
-	public interface IGlobalResources : IDisposable
+	interface IGlobalResources : IDisposable
 	{
 		// Simple constant colour textures.
 		Texture BlackTexture { get; }

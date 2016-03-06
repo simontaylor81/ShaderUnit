@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SRPScripting;
 using System.Runtime.InteropServices;
+using SRPScripting.Shader;
 
 namespace ShaderUnit.TestRenderer
 {
@@ -55,7 +56,7 @@ namespace ShaderUnit.TestRenderer
 		}
 
 		// Helper for the common case of rendering a fullscreen quad.
-		public Bitmap RenderFullscreenImage(object vs, object ps)
+		public Bitmap RenderFullscreenImage(IShader vs, IShader ps)
 		{
 			RenderInterface.SetFrameCallback(context =>
 			{
@@ -72,15 +73,15 @@ namespace ShaderUnit.TestRenderer
 		}
 
 		// Simple wrapper for the common 1D case.
-		public IEnumerable<T> DispatchToBuffer<T>(object cs, string outBufferVariable, int size, int shaderNumThreads) where T : struct =>
+		public IEnumerable<T> DispatchToBuffer<T>(IShader cs, string outBufferVariable, int size, int shaderNumThreads) where T : struct =>
 			DispatchToBuffer<T>(cs, outBufferVariable, Tuple.Create(size, 1, 1), Tuple.Create(shaderNumThreads, 1, 1));
 
-		public IEnumerable<T> DispatchToBuffer<T>(object cs, string outBufferVariable, Tuple<int, int, int> size, Tuple<int, int, int> shaderNumThreads) where T : struct
+		public IEnumerable<T> DispatchToBuffer<T>(IShader cs, string outBufferVariable, Tuple<int, int, int> size, Tuple<int, int, int> shaderNumThreads) where T : struct
 		{
 			// Create buffer to hold results.
 			var numElements = size.Item1 * size.Item2 * size.Item3;
 			var outputBuffer = RenderInterface.CreateStructuredBuffer(new T[numElements], uav: true);	// TODO: Added interface for creating uninitialised buffer.
-			RenderInterface.SetShaderUavVariable(cs, outBufferVariable, outputBuffer);
+			cs.FindUavVariable(outBufferVariable).Set(outputBuffer);
 
 			int numThreadGroupsX = DivideCeil(size.Item1, shaderNumThreads.Item1);
 			int numThreadGroupsY = DivideCeil(size.Item2, shaderNumThreads.Item2);

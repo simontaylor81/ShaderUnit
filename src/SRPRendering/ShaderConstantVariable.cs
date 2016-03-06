@@ -9,12 +9,14 @@ using System.Threading.Tasks;
 using SharpDX.D3DCompiler;
 using SharpDX;
 using SRPCommon.Util;
+using SRPScripting;
+using SRPScripting.Shader;
 
 namespace SRPRendering
 {
-	// Need out own shader variable type descriptor because the SlimDX one just references a D3D
+	// Need out own shader variable type descriptor because the SharpDX one just references a D3D
 	// object that needs to be cleaned up after compilation is complete.
-	public struct ShaderVariableTypeDesc : IEquatable<ShaderVariableTypeDesc>
+	struct ShaderVariableTypeDesc : IEquatable<ShaderVariableTypeDesc>
 	{
 		public ShaderVariableClass Class;
 		public ShaderVariableType Type;
@@ -34,59 +36,49 @@ namespace SRPRendering
 	}
 
 	/// <summary>
-	/// A single constant (non-resource) shader input.
+	/// Concrete implementation of IShaderConstantVariable
 	/// </summary>
-	/// Observable fires when the value changes.
-	public interface IShaderVariable : IObservable<Unit>
-	{
-		/// <summary>
-		/// Name of the variable.
-		/// </summary>
-		string Name { get; }
-
-		/// <summary>
-		/// Descriptor storing information about the variable's type.
-		/// </summary>
-		ShaderVariableTypeDesc VariableType { get; }
-
-		/// <summary>
-		/// Optional bind to automatically set the variable to a certain value.
-		/// </summary>
-		IShaderVariableBind Bind { get; set; }
-
-		/// <summary>
-		/// If true, Bind was set automatically (and therefore can be overridden by the user manually).
-		/// </summary>
-		bool IsAutoBound { get; set; }
-
-		T Get<T>() where T : struct;
-		void Set<T>(T value) where T : struct;
-
-		T GetComponent<T>(int index) where T : struct;
-		void SetComponent<T>(int index, T value) where T : struct;
-
-		/// <summary>
-		/// Reset to initial value.
-		/// </summary>
-		void SetDefault();
-	}
-
-	/// <summary>
-	/// Concrete implementation of IShaderVariable
-	/// </summary>
-	class ShaderVariable : IShaderVariable
+	class ShaderConstantVariable : IShaderConstantVariable
 	{
 		// IShaderVariable interface.
 		public string Name { get; }
+
+		public void Set<T>(T value) where T : struct
+		{
+			Binding = new DirectShaderVariableBind<T>(this, value);
+		}
+
+		public void Bind(ShaderVariableBindSource bindSource)
+		{
+			Binding = new SimpleShaderVariableBind(this, bindSource);
+		}
+
+		public void BindToMaterial(string materialParam)
+		{
+			Binding = new MaterialShaderVariableBind(this, materialParam);
+		}
+
 		public ShaderVariableTypeDesc VariableType { get; }
-		public IShaderVariableBind Bind { get; set; }
-		public bool IsAutoBound { get; set; }
+
+		private IShaderVariableBinding _binding;
+		public IShaderVariableBinding Binding
+		{
+			get { return _binding; }
+			set
+			{
+				if (_binding != null)
+				{
+					throw new ShaderUnitException("Attempting to bind already bound shader variable: " + Name);
+				}
+				_binding = value;
+			}
+		}
 
 		// For debugger prettiness.
 		public override string ToString() => Name;
 
 		// Get the current value of the variable.
-		public T Get<T>() where T : struct
+		public T GetValue<T>() where T : struct
 		{
 			if (Marshal.SizeOf(typeof(T)) != data.Length)
 				throw new ArgumentException("Given size does not match shader variable size.");
@@ -96,7 +88,7 @@ namespace SRPRendering
 		}
 
 		// Set the value of the variable.
-		public void Set<T>(T value) where T : struct
+		public void SetValue<T>(T value) where T : struct
 		{
 			if (Marshal.SizeOf(typeof(T)) < data.Length)
 				throw new ArgumentException(String.Format("Cannot set shader variable '{0}': given value is the wrong size.", Name));
@@ -148,11 +140,10 @@ namespace SRPRendering
 		}
 
 		// Constructors.
-		public ShaderVariable(ShaderReflectionVariable shaderVariable)
+		public ShaderConstantVariable(ShaderReflectionVariable shaderVariable)
 		{
 			Name = shaderVariable.Description.Name;
 			VariableType = new ShaderVariableTypeDesc(shaderVariable.GetVariableType());
-			IsAutoBound = false;
 
 			offset = shaderVariable.Description.StartOffset;
 			data = new DataStream(shaderVariable.Description.Size, true, true);
