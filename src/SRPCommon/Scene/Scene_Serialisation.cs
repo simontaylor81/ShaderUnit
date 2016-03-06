@@ -86,9 +86,6 @@ namespace SRPCommon.Scene
 			Meshes.Values.ForEach(mesh => mesh.PostLoad());
 			Materials.Values.ForEach(mesh => mesh.PostLoad());
 			Primitives.ForEach(mesh => mesh.PostLoad(this));
-
-			// ReactiveList resets its observales post-serialisation, so need to set ours up again.
-			InitObservables();
 		}
 	}
 

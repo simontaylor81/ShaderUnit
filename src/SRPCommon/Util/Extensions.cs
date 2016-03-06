@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -29,10 +27,6 @@ namespace SRPCommon.Util
 				}
 			}
 		}
-
-		// Start the observable with its default value.
-		public static IObservable<T> StartWithDefault<T>(this IObservable<T> source)
-			=> source.StartWith(default(T));
 
 		// Add an item to the list, and return the added item.
 		public static TAdded AddAndReturn<TAdded, TElement>(this IList<TElement> list, TAdded newElement) where TAdded : TElement

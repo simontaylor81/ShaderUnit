@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SRPCommon.Util;
-using System.Reactive;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System.Diagnostics.CodeAnalysis;
@@ -44,9 +43,6 @@ namespace SRPCommon.Scene
 		private string MaterialName { get; set; }
 
 		public virtual bool IsValid => true;
-
-		// Observable that fires when something important changes in the primitive.
-		public IObservable<Unit> OnChanged { get; }
 
 		protected Primitive()
 		{

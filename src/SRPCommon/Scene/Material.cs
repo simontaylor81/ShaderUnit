@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
-using System.Reactive;
 using System.Numerics;
 
 namespace SRPCommon.Scene
@@ -15,9 +14,6 @@ namespace SRPCommon.Scene
 
 		public IDictionary<string, Vector4> Parameters => vectorParameters;
 		public IDictionary<string, string> Textures => textures;
-
-		// Observable that fires when something important changes in the primitive.
-		public IObservable<Unit> OnChanged { get; private set; }
 
 		[JsonProperty("vectorParams")]
 		private Dictionary<string, Vector4> vectorParameters = new Dictionary<string, Vector4>();
