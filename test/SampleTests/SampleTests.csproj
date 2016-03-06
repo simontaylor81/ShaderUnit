@@ -73,18 +73,6 @@
       <Project>{1fcbb772-b521-4c9b-b970-c544a472c7bd}</Project>
       <Name>ShaderUnit</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\SRPCommon\SRPCommon.csproj">
-      <Project>{ae1f21f0-3ddd-4f3f-9633-72cee5848f14}</Project>
-      <Name>SRPCommon</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\SRPRendering\SRPRendering.csproj">
-      <Project>{f1456ac2-0d17-4950-a985-8966b24a4cb8}</Project>
-      <Name>SRPRendering</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\SRPScripting\SRPScripting.csproj">
-      <Project>{0ee5c742-04da-4d53-bb7c-2e21481e790d}</Project>
-      <Name>SRPScripting</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

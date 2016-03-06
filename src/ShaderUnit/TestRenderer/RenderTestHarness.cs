@@ -1,36 +1,18 @@
-﻿using SRPCommon.Util;
-using SRPRendering;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using SRPScripting;
-using System.Runtime.InteropServices;
-using SRPScripting.Shader;
+using ShaderUnit.Interfaces;
+using ShaderUnit.Interfaces.Shader;
+using ShaderUnit.Rendering;
 
 namespace ShaderUnit.TestRenderer
 {
-	public interface IComputeHarness
-	{
-		IRenderInterface RenderInterface { get; }
-
-		void Dispatch(FrameCallback callback);
-		IEnumerable<T> DispatchToBuffer<T>(IShader cs, string outBufferVariable, int size, int shaderNumThreads) where T : struct;
-		IEnumerable<T> DispatchToBuffer<T>(IShader cs, string outBufferVariable, Tuple<int, int, int> size, Tuple<int, int, int> shaderNumThreads) where T : struct;
-		T ExecuteShaderFunction<T>(string shaderFile, string function, params object[] parameters) where T : struct;
-	}
-
-	public interface IRenderHarness : IComputeHarness
-	{
-		Bitmap RenderImage(FrameCallback callback);
-		Bitmap RenderFullscreenImage(IShader vs, IShader ps);
-	}
-
 	class RenderTestHarness : IRenderHarness, IDisposable
 	{
-		private readonly TestRenderer _renderer;
+		private readonly ShaderUnitRenderer _renderer;
 		private readonly TestWorkspace _workspace;
 		private readonly ScriptRenderControl _src;
 
@@ -38,7 +20,7 @@ namespace ShaderUnit.TestRenderer
 
 		public IRenderInterface RenderInterface => _src;
 
-		public RenderTestHarness(TestRenderer renderer, string assetDir)
+		public RenderTestHarness(ShaderUnitRenderer renderer, string assetDir)
 		{
 			_renderer = renderer;
 			_workspace = new TestWorkspace(assetDir);

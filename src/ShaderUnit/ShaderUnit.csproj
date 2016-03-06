@@ -34,6 +34,18 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AssimpNet, Version=3.3.1.0, Culture=neutral, PublicKeyToken=0d51b391f59f42a6, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\AssimpNet.3.3.1\lib\net45\AssimpNet.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="DirectXTexInterfaces, Version=0.1.37.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\DirectXTexNet.0.1.37\lib\net45\DirectXTexInterfaces.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="DirectXTexNet, Version=0.1.37.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\DirectXTexNet.0.1.37\lib\net45\DirectXTexNet.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -44,6 +56,10 @@
     </Reference>
     <Reference Include="SharpDX, Version=3.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\..\packages\SharpDX.3.0.1\lib\net45\SharpDX.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SharpDX.D3DCompiler, Version=3.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\SharpDX.D3DCompiler.3.0.1\lib\net45\SharpDX.D3DCompiler.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SharpDX.Direct3D11, Version=3.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
@@ -76,14 +92,70 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Util\CompositeDisposable.cs" />
+    <Compile Include="Util\DictionaryExtensions.cs" />
+    <Compile Include="Util\DisposableUtil.cs" />
+    <Compile Include="Util\Extensions.cs" />
+    <Compile Include="Util\IWorkspace.cs" />
+    <Compile Include="Util\NumericsUtil.cs" />
+    <Compile Include="Util\PathUtils.cs" />
+    <Compile Include="Core\ShaderUnitException.cs" />
+    <Compile Include="Interfaces\Format.cs" />
+    <Compile Include="Interfaces\RenderState.cs" />
+    <Compile Include="Interfaces\Harnesses.cs" />
+    <Compile Include="Interfaces\IBuffer.cs" />
+    <Compile Include="Interfaces\IRenderContext.cs" />
+    <Compile Include="Interfaces\IRenderInterface.cs" />
+    <Compile Include="Interfaces\IShaderResource.cs" />
+    <Compile Include="Interfaces\Shader\IShader.cs" />
+    <Compile Include="Interfaces\Shader\IShaderConstantVariable.cs" />
+    <Compile Include="Interfaces\Shader\IShaderResourceVariable.cs" />
+    <Compile Include="Interfaces\Shader\IShaderSamplerVariable.cs" />
+    <Compile Include="Interfaces\Shader\IShaderUavVariable.cs" />
+    <Compile Include="Interfaces\Shader\IShaderVariable.cs" />
+    <Compile Include="Mesh\SceneMesh.cs" />
+    <Compile Include="Mesh\SceneVertex.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rendering\Resources\BasicMesh.cs" />
+    <Compile Include="Rendering\FullscreenQuad.cs" />
+    <Compile Include="Rendering\GlobalResources.cs" />
+    <Compile Include="Rendering\IDrawable.cs" />
+    <Compile Include="Rendering\InputLayoutCache.cs" />
+    <Compile Include="Rendering\Resources\RenderMesh.cs" />
+    <Compile Include="Rendering\MipGenerator.cs" />
+    <Compile Include="Rendering\RenderDevice.cs" />
+    <Compile Include="Rendering\RenderUtils.cs" />
+    <Compile Include="Rendering\ResourceHandles.cs" />
+    <Compile Include="Rendering\Resources\Buffer.cs" />
+    <Compile Include="Rendering\Resources\BufferHandle.cs" />
+    <Compile Include="Rendering\Resources\DepthBuffer.cs" />
+    <Compile Include="Rendering\Resources\ID3DResource.cs" />
+    <Compile Include="Rendering\Resources\RenderTarget.cs" />
+    <Compile Include="Rendering\Resources\RenderTargetDescriptor.cs" />
+    <Compile Include="Rendering\Resources\Texture.cs" />
+    <Compile Include="Rendering\SceneMeshCache.cs" />
+    <Compile Include="Rendering\ScriptInterfaceExtensions.cs" />
+    <Compile Include="Rendering\ScriptRenderContext.cs" />
+    <Compile Include="Rendering\ScriptRenderControl.cs" />
+    <Compile Include="Rendering\Shaders\ConstantBuffer.cs" />
+    <Compile Include="Rendering\Shaders\Shader.cs" />
+    <Compile Include="Rendering\Shaders\ShaderConstantVariable.cs" />
+    <Compile Include="Rendering\Shaders\ShaderResourceVariable.cs" />
+    <Compile Include="Rendering\Shaders\ShaderResourceVariableBind.cs" />
+    <Compile Include="Rendering\Shaders\ShaderSamplerVariable.cs" />
+    <Compile Include="Rendering\Shaders\ShaderUavVariable.cs" />
+    <Compile Include="Rendering\Shaders\ShaderVariableBind.cs" />
+    <Compile Include="Rendering\SharpDXUtils.cs" />
+    <Compile Include="Rendering\StateObjectCache.cs" />
+    <Compile Include="Rendering\StreamUtil.cs" />
+    <Compile Include="Rendering\ViewInfo.cs" />
     <Compile Include="Reporting\FileSystemReporter.cs" />
     <Compile Include="Reporting\UseTestReporterAttribute.cs" />
     <Compile Include="TestRenderer\HlslTestHarness.cs" />
     <Compile Include="TestRenderer\ImageAssert.cs" />
-    <Compile Include="TestRenderer\RenderTestBase.cs" />
+    <Compile Include="Core\RenderTestBase.cs" />
     <Compile Include="TestRenderer\RenderTestHarness.cs" />
-    <Compile Include="TestRenderer\TestRenderer.cs" />
+    <Compile Include="TestRenderer\ShaderUnitRenderer.cs" />
     <Compile Include="Reporting\HtmlReporter.cs" />
     <Compile Include="Reporting\TestReporter.cs" />
     <Compile Include="TestRenderer\TestWorkspace.cs" />
@@ -98,20 +170,6 @@
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SRPCommon\SRPCommon.csproj">
-      <Project>{ae1f21f0-3ddd-4f3f-9633-72cee5848f14}</Project>
-      <Name>SRPCommon</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SRPRendering\SRPRendering.csproj">
-      <Project>{f1456ac2-0d17-4950-a985-8966b24a4cb8}</Project>
-      <Name>SRPRendering</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SRPScripting\SRPScripting.csproj">
-      <Project>{0ee5c742-04da-4d53-bb7c-2e21481e790d}</Project>
-      <Name>SRPScripting</Name>
-    </ProjectReference>
-  </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -119,8 +177,12 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets'))" />
+    <Error Condition="!Exists('..\..\packages\AssimpNet.3.3.1\build\AssimpNet.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\AssimpNet.3.3.1\build\AssimpNet.targets'))" />
+    <Error Condition="!Exists('..\..\packages\DirectXTexNet.0.1.37\build\DirectXTexNet.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\DirectXTexNet.0.1.37\build\DirectXTexNet.targets'))" />
   </Target>
   <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
+  <Import Project="..\..\packages\AssimpNet.3.3.1\build\AssimpNet.targets" Condition="Exists('..\..\packages\AssimpNet.3.3.1\build\AssimpNet.targets')" />
+  <Import Project="..\..\packages\DirectXTexNet.0.1.37\build\DirectXTexNet.targets" Condition="Exists('..\..\packages\DirectXTexNet.0.1.37\build\DirectXTexNet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

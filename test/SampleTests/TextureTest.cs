@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using ShaderUnit.TestRenderer;
+using ShaderUnit.Interfaces;
 
 namespace ShaderUnit.SampleTests
 {
@@ -41,7 +41,7 @@ namespace ShaderUnit.SampleTests
 				.SelectMany(y => Enumerable.Range(0, size)
 					.Select(x => MakeRGBA((uint)(x * 256 / size), (uint)(y * 256 / size), 0)));
 
-			var texture = ri.CreateTexture2D(64, 64, SRPScripting.Format.R8G8B8A8_UNorm_SRgb, contents);
+			var texture = ri.CreateTexture2D(64, 64, Format.R8G8B8A8_UNorm_SRgb, contents);
 
 			ps.FindResourceVariable("tex").Set(texture);
 

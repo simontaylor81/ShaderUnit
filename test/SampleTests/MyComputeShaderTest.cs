@@ -5,8 +5,6 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using ShaderUnit.TestRenderer;
-using SRPScripting;
 
 namespace ShaderUnit.SampleTests
 {
