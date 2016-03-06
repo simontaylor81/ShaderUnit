@@ -12,7 +12,7 @@ using SRPCommon.Util;
 using SRPScripting;
 using SRPScripting.Shader;
 
-namespace SRPRendering
+namespace SRPRendering.Shaders
 {
 	// Need out own shader variable type descriptor because the SharpDX one just references a D3D
 	// object that needs to be cleaned up after compilation is complete.

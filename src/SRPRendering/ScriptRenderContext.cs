@@ -9,6 +9,7 @@ using SharpDX.Direct3D11;
 using SharpDX.Mathematics.Interop;
 using SRPCommon.Util;
 using SRPRendering.Resources;
+using SRPRendering.Shaders;
 using SRPScripting;
 using SRPScripting.Shader;
 

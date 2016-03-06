@@ -12,7 +12,7 @@ using SharpDX;
 using SharpDX.Direct3D;
 using SRPScripting.Shader;
 
-namespace SRPRendering
+namespace SRPRendering.Shaders
 {
 	class Shader : IShader, IDisposable
 	{

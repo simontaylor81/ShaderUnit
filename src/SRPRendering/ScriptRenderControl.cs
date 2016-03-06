@@ -9,6 +9,7 @@ using SRPCommon.Interfaces;
 using SRPCommon.Scene;
 using SRPCommon.Util;
 using SRPRendering.Resources;
+using SRPRendering.Shaders;
 using SRPScripting;
 
 namespace SRPRendering

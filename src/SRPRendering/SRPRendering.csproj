@@ -134,9 +134,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicMesh.cs" />
-    <Compile Include="BasicShaders.cs" />
+    <Compile Include="Shaders\BasicShaders.cs" />
     <Compile Include="Resources\Buffer.cs" />
-    <Compile Include="ConstantBuffer.cs" />
+    <Compile Include="Shaders\ConstantBuffer.cs" />
     <Compile Include="Resources\DepthBuffer.cs" />
     <Compile Include="Resources\BufferHandle.cs" />
     <Compile Include="Resources\ID3DResource.cs" />
@@ -159,15 +159,15 @@
     <Compile Include="SceneMeshCache.cs" />
     <Compile Include="ScriptInterfaceExtensions.cs" />
     <Compile Include="ScriptRenderContext.cs" />
-    <Compile Include="ShaderSamplerVariable.cs" />
-    <Compile Include="ShaderUavVariable.cs" />
+    <Compile Include="Shaders\ShaderSamplerVariable.cs" />
+    <Compile Include="Shaders\ShaderUavVariable.cs" />
     <Compile Include="SyrupRenderer.cs" />
     <Compile Include="ScriptRenderControl.cs" />
-    <Compile Include="Shader.cs" />
-    <Compile Include="ShaderResourceVariable.cs" />
-    <Compile Include="ShaderResourceVariableBind.cs" />
-    <Compile Include="ShaderConstantVariable.cs" />
-    <Compile Include="ShaderVariableBind.cs" />
+    <Compile Include="Shaders\Shader.cs" />
+    <Compile Include="Shaders\ShaderResourceVariable.cs" />
+    <Compile Include="Shaders\ShaderResourceVariableBind.cs" />
+    <Compile Include="Shaders\ShaderConstantVariable.cs" />
+    <Compile Include="Shaders\ShaderVariableBind.cs" />
     <Compile Include="StateObjectCache.cs" />
     <Compile Include="Resources\Texture.cs" />
     <Compile Include="ViewInfo.cs" />

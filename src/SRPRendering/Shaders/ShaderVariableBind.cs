@@ -8,7 +8,7 @@ using SRPScripting;
 using System.Numerics;
 using SRPCommon.Util;
 
-namespace SRPRendering
+namespace SRPRendering.Shaders
 {
 	public interface IShaderVariableBinding
 	{

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using SharpDX.Direct3D11;
 using SRPRendering.Resources;
 
-namespace SRPRendering
+namespace SRPRendering.Shaders
 {
 	interface IShaderResourceVariableBinding
 	{

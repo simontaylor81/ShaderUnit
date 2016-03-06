@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using SharpDX;
 using SharpDX.Direct3D11;
 
-namespace SRPRendering
+namespace SRPRendering.Shaders
 {
 	class ConstantBuffer : IDisposable
 	{

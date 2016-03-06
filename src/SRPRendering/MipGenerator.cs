@@ -18,6 +18,7 @@ using SharpDX.Mathematics.Interop;
 using SharpDX.Direct3D;
 using SRPCommon.Util;
 using SRPRendering.Resources;
+using SRPRendering.Shaders;
 
 namespace SRPRendering
 {

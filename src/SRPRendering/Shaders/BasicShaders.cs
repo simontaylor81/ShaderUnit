@@ -8,7 +8,7 @@ using SRPScripting;
 using SRPCommon.Util;
 using SRPScripting.Shader;
 
-namespace SRPRendering
+namespace SRPRendering.Shaders
 {
 	interface IBasicShaders : IDisposable
 	{

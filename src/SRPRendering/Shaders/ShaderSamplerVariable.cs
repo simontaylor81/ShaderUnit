@@ -7,7 +7,7 @@ using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
 using SRPScripting.Shader;
 
-namespace SRPRendering
+namespace SRPRendering.Shaders
 {
 	// Info about a sampler input to a shader.
 	class ShaderSamplerVariable : IShaderSamplerVariable

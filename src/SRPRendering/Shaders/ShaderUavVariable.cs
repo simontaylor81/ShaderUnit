@@ -11,7 +11,7 @@ using SRPRendering.Resources;
 using SRPScripting;
 using SRPScripting.Shader;
 
-namespace SRPRendering
+namespace SRPRendering.Shaders
 {
 	class ShaderUavVariable : IShaderUavVariable
 	{
