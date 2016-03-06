@@ -44,7 +44,7 @@ namespace SRPScripting
 
 		void BindShaderVariable(object shader, string var, ShaderVariableBindSource source);
 		void BindShaderVariableToMaterial(object shader, string var, string param);
-		void SetShaderVariable(object shader, string var, dynamic value);
+		void SetShaderVariable<T>(object shader, string var, T value) where T : struct;
 		void ShaderVariableIsScriptOverride(object shader, string var);
 
 		void BindShaderResourceToMaterial(object shader, string var, string param, object fallback = null);

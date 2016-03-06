@@ -126,6 +126,26 @@ namespace SRPRendering
 		private string source;
 	}
 
+	class SimpleShaderVariableBind<T> : IShaderVariableBind where T : struct
+	{
+		private T _value;
+		private IShaderVariable _variable;
+
+		public SimpleShaderVariableBind(IShaderVariable variable, T value)
+		{
+			_variable = variable;
+			_value = value;
+		}
+
+		public bool AllowScriptOverride => false;
+
+		public void UpdateVariable(ViewInfo viewInfo, IPrimitive primitive, IDictionary<string, dynamic> overrides)
+		{
+			_variable.Set(_value);
+		}
+	}
+
+	// TODO: Remove?
 	class ScriptOverrideShaderVariableBind : IShaderVariableBind
 	{
 		public ScriptOverrideShaderVariableBind(IShaderVariable variable)

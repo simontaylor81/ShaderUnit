@@ -128,12 +128,11 @@ namespace SRPRendering
 			SetShaderBind(variables, variable => new MaterialShaderVariableBind(variable, paramName));
 		}
 
-		public void SetShaderVariable(object handleOrHandles, string varName, dynamic value)
+		public void SetShaderVariable<T>(object handleOrHandles, string varName, T value) where T : struct
 		{
-			throw new NotImplementedException("TODO: Set shader variables");
-			//var shaders = GetShaders(handleOrHandles);
-			//var variables = shaders.Select(shader => shader.FindVariable(varName));
-			//SetShaderBind(variables, variable => new ScriptShaderVariableBind(variable, value));
+			var shaders = GetShaders(handleOrHandles);
+			var variables = shaders.Select(shader => shader.FindVariable(varName));
+			SetShaderBind(variables, variable => new SimpleShaderVariableBind<T>(variable, value));
 		}
 
 		public void ShaderVariableIsScriptOverride(object handleOrHandles, string varName)
