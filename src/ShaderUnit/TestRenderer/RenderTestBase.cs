@@ -37,9 +37,12 @@ namespace ShaderUnit.TestRenderer
 			_harness = null;
 
 			// Report result.
-			var context = TestContext.CurrentContext;
-			await TestReporter.Instance.TestCompleteAsync(
-				context.Test.FullName, context.Result.Outcome.Status == TestStatus.Passed, _imageResult);
+			if (TestReporter.Instance != null)
+			{
+				var context = TestContext.CurrentContext;
+				await TestReporter.Instance.TestCompleteAsync(
+					context.Test.FullName, context.Result.Outcome.Status == TestStatus.Passed, _imageResult);
+			}
 
 			// Clear state ready for the next run (NUnit re-uses class instances).
 			_imageResult = null;
