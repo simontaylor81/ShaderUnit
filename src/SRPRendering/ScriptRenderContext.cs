@@ -19,60 +19,16 @@ namespace SRPRendering
 	{
 		public ScriptRenderContext(DeviceContext deviceContext,
 								   ViewInfo viewInfo,
-								   RenderScene scene,
 								   IList<RenderTarget> renderTargets,
 								   IGlobalResources globalResources)
 		{
 			this.deviceContext = deviceContext;
 			this.viewInfo = viewInfo;
-			this.scene = scene;
 			this.renderTargetResources = renderTargets;
 			_globalResources = globalResources;
 		}
 
 		#region IRenderContext interface
-
-		// Draw the entire scene.
-		public void DrawScene(IShader vertexShaderInterface,
-							  IShader pixelShaderInterface,
-							  RastState rastState = null,
-							  SRPScripting.DepthStencilState depthStencilState = null,
-							  SRPScripting.BlendState blendState = null,
-							  IEnumerable<object> renderTargetHandles = null,
-							  object depthBuffer = null)
-		{
-			Shader vertexShader = GetShader(vertexShaderInterface);
-			Shader pixelShader = GetShader(pixelShaderInterface);
-
-			// Vertex shader is not optional.
-			if (vertexShader == null)
-				throw new ShaderUnitException("DrawScene: Cannot draw without a vertex shader.");
-
-			// Must have a scene to draw one!
-			if (scene == null)
-				throw new ShaderUnitException("DrawScene: No scene set.");
-
-			// Set input layout
-			deviceContext.InputAssembler.InputLayout = _globalResources.InputLayoutCache.GetInputLayout(
-				deviceContext.Device, vertexShader.Signature, InputLayoutCache.SceneVertexInputElements);
-
-			// Set render state.
-			SetRenderTargets(renderTargetHandles, depthBuffer);
-			deviceContext.Rasterizer.State = _globalResources.RastStateCache.Get(rastState.ToD3D11());
-			deviceContext.OutputMerger.DepthStencilState = _globalResources.DepthStencilStateCache.Get(depthStencilState.ToD3D11());
-			deviceContext.OutputMerger.BlendState = _globalResources.BlendStateCache.Get(blendState.ToD3D11());
-			SetShaders(vertexShader, pixelShader);
-
-			// Draw each mesh.
-			foreach (var proxy in scene.Primitives)
-			{
-				UpdateShaders(vertexShader, pixelShader, proxy);
-				proxy.Mesh.Draw(deviceContext);
-			}
-
-			// Force all state to defaults -- we're completely stateless.
-			deviceContext.ClearState();
-		}
 
 		// Draw a unit sphere.
 		public void DrawSphere(IShader vertexShaderInterface,
@@ -102,7 +58,7 @@ namespace SRPRendering
 			SetShaders(vertexShader, pixelShader);
 
 			// Draw the sphere mesh.
-			UpdateShaders(vertexShader, pixelShader, null);		// TODO: Pass a valid proxy here?
+			UpdateShaders(vertexShader, pixelShader);
 			_globalResources.SphereMesh.Draw(deviceContext);
 
 			// Force all state to defaults -- we're completely stateless.
@@ -133,7 +89,7 @@ namespace SRPRendering
 			SetShaders(vertexShader, pixelShader);
 
 			// Draw the quad.
-			UpdateShaders(vertexShader, pixelShader, null);
+			UpdateShaders(vertexShader, pixelShader);
 			_globalResources.FullscreenQuad.Draw(deviceContext);
 
 			// Force all state to defaults -- we're completely stateless.
@@ -150,7 +106,7 @@ namespace SRPRendering
 			}
 
 			cs.Set(deviceContext);
-			cs.UpdateVariables(deviceContext, viewInfo, null, _globalResources);
+			cs.UpdateVariables(deviceContext, viewInfo, _globalResources);
 			deviceContext.Dispatch(numGroupsX, numGroupsY, numGroupsZ);
 
 			// Enforce statelessness.
@@ -175,53 +131,6 @@ namespace SRPRendering
 			catch (ShaderUnitException ex)
 			{
 				throw new ShaderUnitException("Clear: Invalid colour.", ex);
-			}
-		}
-
-		// Draw a wireframe sphere.
-		public void DrawWireSphere(Vector3 position,
-								   float radius,
-								   Vector3 colour,
-								   object renderTarget = null)
-		{
-			try
-			{
-				var col = new Vector4(colour, 1.0f);
-
-				// Set render target.
-				SetRenderTargets(new[] { renderTarget }, null);
-
-				// Set wireframe render state.
-				var rastState = new RastState(SRPScripting.FillMode.Wireframe);
-				deviceContext.Rasterizer.State = _globalResources.RastStateCache.Get(rastState.ToD3D11());
-				deviceContext.OutputMerger.DepthStencilState = _globalResources.DepthStencilStateCache.Get(SRPScripting.DepthStencilState.DisableDepthWrite.ToD3D11());
-				deviceContext.OutputMerger.BlendState = _globalResources.BlendStateCache.Get(SRPScripting.BlendState.NoBlending.ToD3D11());
-
-				// Set simple shaders.
-				SetShaders(_globalResources.BasicShaders.BasicSceneVS, _globalResources.BasicShaders.SolidColourPS);
-
-				// Construct transform matrix.
-				var transform = Matrix4x4.CreateScale(radius, radius, radius) * Matrix4x4.CreateTranslation(position);
-
-				// Set shader constants.
-				_globalResources.BasicShaders.SolidColourShaderVar.Set(col);
-				UpdateShaders(_globalResources.BasicShaders.BasicSceneVS, _globalResources.BasicShaders.SolidColourPS, new SimplePrimitiveProxy(transform));
-
-				// Set input layout
-				deviceContext.InputAssembler.InputLayout = _globalResources.InputLayoutCache.GetInputLayout(
-					deviceContext.Device, _globalResources.BasicShaders.BasicSceneVS.Signature, BasicMesh.InputElements);
-
-				// Draw the sphere.
-				_globalResources.SphereMesh.Draw(deviceContext);
-			}
-			catch (ShaderUnitException ex)
-			{
-				throw new ShaderUnitException("Invalid parameters to DrawWireSphere.", ex);
-			}
-			finally
-			{
-				// Force all state to defaults -- we're completely stateless.
-				deviceContext.ClearState();
 			}
 		}
 
@@ -265,15 +174,15 @@ namespace SRPRendering
 		}
 
 		// Update the variables of the given shaders, unless they're null.
-		private void UpdateShaders(Shader vs, Shader ps, IPrimitive primitive)
+		private void UpdateShaders(Shader vs, Shader ps)
 		{
 			if (vs != null)
-				vs.UpdateVariables(deviceContext, viewInfo, primitive, _globalResources);
+				vs.UpdateVariables(deviceContext, viewInfo, _globalResources);
 			else
 				deviceContext.VertexShader.Set(null);
 
 			if (ps != null)
-				ps.UpdateVariables(deviceContext, viewInfo, primitive, _globalResources);
+				ps.UpdateVariables(deviceContext, viewInfo, _globalResources);
 			else
 				deviceContext.PixelShader.Set(null);
 		}
@@ -356,7 +265,6 @@ namespace SRPRendering
 		}
 
 		private DeviceContext deviceContext;
-		private RenderScene scene;
 		private IList<RenderTarget> renderTargetResources;
 		private ViewInfo viewInfo;
 		private IGlobalResources _globalResources;

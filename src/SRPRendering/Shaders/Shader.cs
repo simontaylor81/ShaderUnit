@@ -242,7 +242,7 @@ namespace SRPRendering.Shaders
 		}
 
 		// Upload constants if required.
-		public void UpdateVariables(DeviceContext context, ViewInfo viewInfo, IPrimitive primitive, IGlobalResources globalResources)
+		public void UpdateVariables(DeviceContext context, ViewInfo viewInfo, IGlobalResources globalResources)
 		{
 			// First, update the value of bound and overridden variables.
 			foreach (var variable in Variables)
@@ -250,7 +250,7 @@ namespace SRPRendering.Shaders
 				// Is the variable bound?
 				if (variable.Binding != null)
 				{
-					variable.Binding.UpdateVariable(viewInfo, primitive);
+					variable.Binding.UpdateVariable(viewInfo);
 				}
 			}
 
@@ -265,7 +265,7 @@ namespace SRPRendering.Shaders
 			{
 				if (resourceVariable.Binding != null)
 				{
-					resourceVariable.Resource = resourceVariable.Binding.GetResource(primitive, viewInfo, globalResources);
+					resourceVariable.Resource = resourceVariable.Binding.GetResource(viewInfo, globalResources);
 				}
 
 				resourceVariable.SetToDevice(context);

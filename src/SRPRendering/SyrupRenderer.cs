@@ -27,29 +27,9 @@ namespace SRPRendering
 			ScriptInterface = _scriptRenderControl;
 		}
 
-		public Scene Scene
-		{
-			get { return _scene; }
-			set
-			{
-				if (_scene != value)
-				{
-					_scene = value;
-					_scriptRenderControl.Scene = value;
-
-					// Dispose of the old render scene.
-					DisposableUtil.SafeDispose(_renderScene);
-
-					// Create new one.
-					_renderScene = new RenderScene(_scene, _device);
-				}
-			}
-		}
-
 		public void Dispose()
 		{
 			_disposables.Dispose();
-			DisposableUtil.SafeDispose(_renderScene);
 			_device = null;
 		}
 
@@ -59,19 +39,13 @@ namespace SRPRendering
 			deviceContext.ClearRenderTargetView(viewInfo.BackBuffer, new RawColor4());
 
 			// Let the script do its thing.
-			_scriptRenderControl.Render(deviceContext, viewInfo, _renderScene);
+			_scriptRenderControl.Render(deviceContext, viewInfo);
 		}
 
 		// Wrapper class that gets given to the script, acting as a firewall to prevent it from accessing this class directly.
 		public IRenderInterface ScriptInterface { get; }
 
 		private RenderDevice _device;
-
-		// Renderer representation of the scene we're currently rendering
-		private RenderScene _renderScene;
-
-		// Original scene data the above was created from.
-		private Scene _scene;
 
 		// List of things to dispose.
 		private CompositeDisposable _disposables = new CompositeDisposable();

@@ -10,7 +10,5 @@ namespace SRPScripting.Shader
 	public interface IShaderResourceVariable : IShaderVariable
 	{
 		void Set(IShaderResource value);
-
-		void BindToMaterial(string materialParam, IShaderResource fallback = null);
 	}
 }

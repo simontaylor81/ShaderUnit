@@ -11,9 +11,6 @@ namespace SRPScripting
 	{
 		WorldToProjectionMatrix,	// Bind to the combined world to projection space matrix.
 		ProjectionToWorldMatrix,	// Bind to the combined projection to world space matrix (i.e. the inverse of the WorldToProjectionMatrix).
-		LocalToWorldMatrix,			// Bind to the object-local to world space matrix.
-		WorldToLocalMatrix,			// Bind to the world to object-local space matrix (i.e. the inverse of the local to world matrix).
-		LocalToWorldInverseTransposeMatrix,	// Bind to the inverse-transpose of the local-to-world matrix.
 		CameraPosition,				// Bind to the position of the camera in world-space.
 	}
 
@@ -45,9 +42,6 @@ namespace SRPScripting
 
 		// Still unsure if this is the best way to go.
 		void SetFrameCallback(FrameCallback callback);
-
-		// Get access to the scene.
-		dynamic GetScene();
 
 		// Handles to special resources.
 		//object BackBuffer { get; }

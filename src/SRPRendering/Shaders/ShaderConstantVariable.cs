@@ -51,11 +51,6 @@ namespace SRPRendering.Shaders
 			Binding = new SimpleShaderVariableBind(this, bindSource);
 		}
 
-		public void BindToMaterial(string materialParam)
-		{
-			Binding = new MaterialShaderVariableBind(this, materialParam);
-		}
-
 		public ShaderVariableTypeDesc VariableType { get; }
 
 		private IShaderVariableBinding _binding;

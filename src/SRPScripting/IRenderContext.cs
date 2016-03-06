@@ -10,16 +10,6 @@ namespace SRPScripting
 {
 	public interface IRenderContext
 	{
-		// Draw the full scene.
-		void DrawScene(
-			IShader vertexShaderIndex,
-			IShader pixelShaderIndex,
-			RastState rastState = null,
-			DepthStencilState depthStencilState = null,
-			BlendState blendState = null,
-			IEnumerable<object> renderTargets = null,
-			object depthBuffer = null);
-
 		// Draw a shaded sphere.
 		void DrawSphere(
 			IShader vertexShaderIndex,
@@ -41,12 +31,5 @@ namespace SRPScripting
 
 		// Clear render targets.
 		void Clear(Vector4 colour, IEnumerable<object> renderTargets = null);
-
-		// Draw a wireframe sphere.
-		void DrawWireSphere(
-			Vector3 position,
-			float radius,
-			Vector3 colour,
-			object renderTarget = null);
 	}
 }

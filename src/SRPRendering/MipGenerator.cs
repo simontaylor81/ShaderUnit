@@ -126,7 +126,7 @@ namespace SRPRendering
 					for (int arraySlice = 0; arraySlice < numArraySlices; arraySlice++)
 					{
 						arraySliceVariable?.Set(arraySlice);
-						pixelShader.UpdateVariables(context, null, null, null);
+						pixelShader.UpdateVariables(context, null, null);
 
 						// Render 'fullscreen' quad to downsample the mip.
 						_device.GlobalResources.FullscreenQuad.Draw(context);

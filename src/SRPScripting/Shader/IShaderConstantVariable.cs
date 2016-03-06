@@ -12,10 +12,7 @@ namespace SRPScripting.Shader
 		// Set directly to a given value.
 		void Set<T>(T value) where T : struct;
 
-		// Bind to camera or scene property.
+		// Bind to camera property.
 		void Bind(ShaderVariableBindSource bindSource);
-
-		// Bind to material property.
-		void BindToMaterial(string materialParam);
 	}
 }

@@ -12,7 +12,7 @@ namespace SRPRendering.Shaders
 {
 	public interface IShaderVariableBinding
 	{
-		void UpdateVariable(ViewInfo viewInfo, IPrimitive primitive);
+		void UpdateVariable(ViewInfo viewInfo);
 	}
 
 	class SimpleShaderVariableBind : IShaderVariableBinding
@@ -23,7 +23,7 @@ namespace SRPRendering.Shaders
 			this.source = source;
 		}
 
-		public void UpdateVariable(ViewInfo viewInfo, IPrimitive primitive)
+		public void UpdateVariable(ViewInfo viewInfo)
 		{
 			switch (source)
 			{
@@ -39,34 +39,6 @@ namespace SRPRendering.Shaders
 					}
 					return;
 
-				case ShaderVariableBindSource.LocalToWorldMatrix:
-					if (primitive != null)
-					{
-						variable.SetValue(primitive.LocalToWorld);
-						return;
-					}
-					break;
-
-				case ShaderVariableBindSource.WorldToLocalMatrix:
-					if (primitive != null)
-					{
-						var matrix = primitive.LocalToWorld;
-						Matrix4x4.Invert(matrix, out matrix);
-						variable.SetValue(matrix);
-						return;
-					}
-					break;
-
-				case ShaderVariableBindSource.LocalToWorldInverseTransposeMatrix:
-					if (primitive != null)
-					{
-						var matrix = primitive.LocalToWorld;
-						Matrix4x4.Invert(matrix, out matrix);
-						variable.SetValue(Matrix4x4.Transpose(matrix));
-						return;
-					}
-					break;
-
 				case ShaderVariableBindSource.CameraPosition:
 					variable.SetValue(viewInfo.EyePosition);
 					return;
@@ -80,47 +52,6 @@ namespace SRPRendering.Shaders
 		private ShaderVariableBindSource source;
 	}
 
-	class MaterialShaderVariableBind : IShaderVariableBinding
-	{
-		public MaterialShaderVariableBind(ShaderConstantVariable variable, string source)
-		{
-			this.variable = variable;
-			this.source = source;
-
-			if (variable.VariableType.Type != ShaderVariableType.Float)
-			{
-				throw new ShaderUnitException(String.Format("Cannot bind shader variable '{0}' to material parameter: only float parameters are supported.", variable.Name));
-			}
-		}
-
-		public void UpdateVariable(ViewInfo viewInfo, IPrimitive primitive)
-		{
-			if (primitive != null && primitive.Material != null)
-			{
-				Vector4 value;
-				if (primitive.Material.Parameters.TryGetValue(source, out value))
-				{
-					var valueArray = value.ToArray();
-
-					// Set each component individually, as the variable might be < 4 components.
-					int numComponents = Math.Min(variable.VariableType.Columns * variable.VariableType.Rows, 4);
-					for (int i = 0; i < numComponents; i++)
-					{
-						variable.SetComponent(i, valueArray[i]);
-					}
-
-					return;
-				}
-			}
-
-			// Could not get value from material, so reset to default.
-			variable.SetDefault();
-		}
-
-		private ShaderConstantVariable variable;
-		private string source;
-	}
-
 	class DirectShaderVariableBind<T> : IShaderVariableBinding where T : struct
 	{
 		private T _value;
@@ -132,7 +63,7 @@ namespace SRPRendering.Shaders
 			_value = value;
 		}
 
-		public void UpdateVariable(ViewInfo viewInfo, IPrimitive primitive)
+		public void UpdateVariable(ViewInfo viewInfo)
 		{
 			_variable.SetValue(_value);
 		}

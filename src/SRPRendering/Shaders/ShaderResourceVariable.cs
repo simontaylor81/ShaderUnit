@@ -31,15 +31,6 @@ namespace SRPRendering.Shaders
 			Binding = new DirectShaderResourceVariableBinding(resource);
 		}
 
-		public void BindToMaterial(string materialParam, IShaderResource fallback = null)
-		{
-			if (fallback != null)
-			{
-				throw new NotImplementedException("TODO: Shader resource abstraction");
-			}
-			Binding = new MaterialShaderResourceVariableBinding(materialParam, null);
-		}
-
 		// TODO: Render target & depth buffer bindings.
 
 		private IShaderResourceVariableBinding _binding;

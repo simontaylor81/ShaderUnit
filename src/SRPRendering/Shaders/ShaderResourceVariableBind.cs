@@ -10,36 +10,7 @@ namespace SRPRendering.Shaders
 {
 	interface IShaderResourceVariableBinding
 	{
-		ID3DShaderResource GetResource(IPrimitive primitive, ViewInfo viewInfo, IGlobalResources globalResources);
-	}
-
-	class MaterialShaderResourceVariableBinding : IShaderResourceVariableBinding
-	{
-		public MaterialShaderResourceVariableBinding(string paramName, ID3DShaderResource fallback)
-		{
-			_paramName = paramName;
-			_fallback = fallback;
-		}
-
-		public ID3DShaderResource GetResource(IPrimitive primitive, ViewInfo viewInfo, IGlobalResources globalResources)
-		{
-			// Look up texture filename in the material.
-			if (primitive != null && primitive.Material != null)
-			{
-				string filename;
-				if (primitive.Material.Textures.TryGetValue(_paramName, out filename))
-				{
-					// Get the actual texture object from the scene.
-					return primitive.Scene.GetTexture(filename);
-				}
-			}
-
-			// Fall back to fallback texture.
-			return _fallback;
-		}
-
-		private readonly string _paramName;
-		private readonly ID3DShaderResource _fallback;
+		ID3DShaderResource GetResource(ViewInfo viewInfo, IGlobalResources globalResources);
 	}
 
 	class DirectShaderResourceVariableBinding : IShaderResourceVariableBinding
@@ -49,7 +20,7 @@ namespace SRPRendering.Shaders
 			_resource = resource;
 		}
 
-		public ID3DShaderResource GetResource(IPrimitive primitive, ViewInfo viewInfo, IGlobalResources globalResources)
+		public ID3DShaderResource GetResource(ViewInfo viewInfo, IGlobalResources globalResources)
 		{
 			return _resource;
 		}
@@ -64,7 +35,7 @@ namespace SRPRendering.Shaders
 			this.descriptor = descriptor;
 		}
 
-		public ID3DShaderResource GetResource(IPrimitive primitive, ViewInfo viewInfo, IGlobalResources globalResources)
+		public ID3DShaderResource GetResource(ViewInfo viewInfo, IGlobalResources globalResources)
 		{
 			System.Diagnostics.Debug.Assert(descriptor.renderTarget != null);
 			return descriptor.renderTarget;
@@ -75,7 +46,7 @@ namespace SRPRendering.Shaders
 
 	class DefaultDepthBufferShaderResourceVariableBinding : IShaderResourceVariableBinding
 	{
-		public ID3DShaderResource GetResource(IPrimitive primitive, ViewInfo viewInfo, IGlobalResources globalResources)
+		public ID3DShaderResource GetResource(ViewInfo viewInfo, IGlobalResources globalResources)
 		{
 			return viewInfo.DepthBuffer;
 		}
