@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://github.com/simontaylor81/ShaderUnit/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/simontaylor81/ShaderUnit</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright (c) Simon Taylor 2016</copyright>
+    <tags>HLSL Shaders Direct3D D3D SharpDX UnitTesting NUnit</tags>
+  </metadata>
+</package>
