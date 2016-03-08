@@ -20,21 +20,12 @@ namespace ShaderUnit.Rendering
 	{
 		private readonly RenderDevice _device;
 		private readonly IWorkspace _workspace;
-		private readonly Shader _vertexShader;
+		private Shader _vertexShader;
 
 		public MipGenerator(RenderDevice device, IWorkspace workspace)
 		{
 			_device = device;
 			_workspace = workspace;
-
-			// Compile vertex shader.
-			_vertexShader = Shader.CompileFromFile(
-				_device.Device,
-				RenderUtils.GetShaderFilename("GenMipsVS.hlsl"),
-				"Main",
-				"vs_4_0",
-				RenderUtils.GetShaderFilename,
-				null);
 		}
 
 		// Do the generation.
@@ -52,6 +43,18 @@ namespace ShaderUnit.Rendering
 			if (resolvedShaderPath == null || !File.Exists(resolvedShaderPath))
 			{
 				throw new ShaderUnitException("Cannot find mip generation shader file: " + shaderFile);
+			}
+
+			if (_vertexShader == null)
+			{
+				// Compile vertex shader.
+				_vertexShader = Shader.CompileFromFile(
+					_device.Device,
+					RenderUtils.GetShaderFilename("GenMipsVS.hlsl"),
+					"Main",
+					"vs_4_0",
+					RenderUtils.GetShaderFilename,
+					null);
 			}
 
 			var isCubemap = (texture.Texture2D.Description.OptionFlags & ResourceOptionFlags.TextureCube) != 0;
