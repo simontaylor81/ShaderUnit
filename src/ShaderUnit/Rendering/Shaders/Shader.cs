@@ -106,7 +106,9 @@ namespace ShaderUnit.Rendering.Shaders
 			var includeHandler = includeLookup != null ? new IncludeHandler(includeLookup) : null;
 			using (var compilationResult = ShaderBytecode.Compile(source, entryPoint, profile, ShaderFlags.None, EffectFlags.None, defines, includeHandler))
 			{
-				if (compilationResult.HasErrors)
+				// Don't check HasErrors or the status code, since apparent they sometimes
+				// indicate succes even when the compile failed!
+				if (compilationResult.Bytecode == null)
 				{
 					throw TranslateErrors(compilationResult, "<string>", includeLookup);
 				}
