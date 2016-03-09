@@ -1,0 +1,4 @@
+float fn()
+{
+	return nonExistant;
+}
