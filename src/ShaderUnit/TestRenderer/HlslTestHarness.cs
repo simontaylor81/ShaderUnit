@@ -97,6 +97,11 @@ namespace ShaderUnit.TestRenderer
 				var vec = (Vector4)value;
 				return $"float4({vec.X}, {vec.Y}, {vec.Z}, {vec.W})";
 			}
+			else if (type == typeof(Matrix4x4))
+			{
+				var m = (Matrix4x4)value;
+				return $"float4x4({m.M11}, {m.M12}, {m.M13}, {m.M14}, {m.M21}, {m.M22}, {m.M23}, {m.M24}, {m.M31}, {m.M32}, {m.M33}, {m.M34}, {m.M41}, {m.M42}, {m.M43}, {m.M44})";
+			}
 
 			throw new ArgumentException($"Value cannot be converted to HLSL: {value.ToString()}", nameof(value));
 		}
