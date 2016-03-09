@@ -10,6 +10,7 @@ namespace ShaderUnit.TestRenderer
 		// Use weird names to reduce chance of conflicts with the SUT.
 		public static string EntryPoint => "__Main";
 		public static string OutBufferName => "__OutputBuffer";
+		public static string OutStructName => "__OutStruct";
 
 		public static string GenerateComputeShader(string shaderFile, string function, Type returnType, object[] parameters)
 		{
@@ -19,11 +20,20 @@ namespace ShaderUnit.TestRenderer
 			var arguments = string.Join(", ", parameters.Select(ClrValueToHlslLiteral));
 
 			result.AppendLine($"#include \"{shaderFile}\"");
-			result.AppendLine($"RWStructuredBuffer<{hlslReturnType}> {OutBufferName};");
+
+			// This is slightly messy, but we actually put the returned value inside a struct
+			// so we can have type modifiers (e.g. row_major) on the return type.
+			// (You can't do RWStructuredBuffer<row_major float4x4> for example, it won't compile).
+			result.AppendLine($"struct {OutStructName}");
+			result.AppendLine("{");
+			result.AppendLine($"	{hlslReturnType} value;");
+			result.AppendLine("};");
+			result.AppendLine($"RWStructuredBuffer<{OutStructName}> {OutBufferName};");
+
 			result.AppendLine("[numthreads(1, 1, 1)]");
 			result.AppendLine($"void {EntryPoint}()");
 			result.AppendLine("{");
-			result.AppendLine($"\t{OutBufferName}[0] = {function}({arguments});");
+			result.AppendLine($"\t{OutBufferName}[0].value = {function}({arguments});");
 			result.AppendLine("}");
 
 			return result.ToString();
@@ -54,6 +64,11 @@ namespace ShaderUnit.TestRenderer
 			else if (type == typeof(Vector4))
 			{
 				return "float4";
+			}
+			else if (type == typeof(Matrix4x4))
+			{
+				// System.Numerics.Matrix4x4 is row-major in memory, so match that.
+				return "row_major float4x4";
 			}
 
 			throw new ArgumentException($"Type cannot be converted to HLSL: {type.ToString()}", nameof(type));
