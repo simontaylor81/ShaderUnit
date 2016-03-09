@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="ShaderCompileTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\ShaderUnit\ShaderUnit.csproj">
@@ -82,6 +83,7 @@
     <Content Include="Assets\Shaders\Errors\SyntaxError.hlsl" />
     <Content Include="Assets\Shaders\Includee.hlsl" />
     <Content Include="Assets\Shaders\Includer.hlsl" />
+    <Content Include="Assets\Shaders\TypeTests.hlsl" />
     <Content Include="Assets\Shaders\ValidShaders.hlsl" />
   </ItemGroup>
   <ItemGroup>
