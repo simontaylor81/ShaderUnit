@@ -16,61 +16,62 @@ namespace ShaderUnit.Rendering.Shaders
 {
 	class Shader : IShader, IDisposable
 	{
-		private Shader(Device device, string profile, IncludeHandler includeHandler, Func<ShaderBytecode> compiler)
+		private Shader(Device device, string profile, IncludeHandler includeHandler, ShaderBytecode bytecode)
 		{
-			// Compile the shader to bytecode.
-			using (var bytecode = compiler())
+			if (bytecode == null)
 			{
-				IncludedFiles = includeHandler != null ? includeHandler.IncludedFiles : Enumerable.Empty<IncludedFile>();
+				throw new ArgumentNullException(nameof(bytecode));
+			}
 
-				// Create the shader object of the appropriate type.
-				switch (profile.Substring(0, 2))
-				{
-					case "vs":
-						_vertexShader = new VertexShader(device, bytecode);
-						Signature = ShaderSignature.GetInputSignature(bytecode);
-						Frequency = ShaderFrequency.Vertex;
-						break;
+			IncludedFiles = includeHandler != null ? includeHandler.IncludedFiles : Enumerable.Empty<IncludedFile>();
 
-					case "ps":
-						_pixelShader = new PixelShader(device, bytecode);
-						Frequency = ShaderFrequency.Pixel;
-						break;
+			// Create the shader object of the appropriate type.
+			switch (profile.Substring(0, 2))
+			{
+				case "vs":
+					_vertexShader = new VertexShader(device, bytecode);
+					Signature = ShaderSignature.GetInputSignature(bytecode);
+					Frequency = ShaderFrequency.Vertex;
+					break;
 
-					case "cs":
-						_computeShader = new ComputeShader(device, bytecode);
-						Frequency = ShaderFrequency.Compute;
-						break;
+				case "ps":
+					_pixelShader = new PixelShader(device, bytecode);
+					Frequency = ShaderFrequency.Pixel;
+					break;
 
-					default:
-						throw new Exception("Unsupported shader profile: " + profile);
-				}
+				case "cs":
+					_computeShader = new ComputeShader(device, bytecode);
+					Frequency = ShaderFrequency.Compute;
+					break;
 
-				// Get info about the shader's inputs.
-				using (var reflection = new ShaderReflection(bytecode))
-				{
-					// Gether constant buffers.
-					_cbuffers = reflection.GetConstantBuffers()
-						.Where(cbuffer => cbuffer.Description.Type == ConstantBufferType.ConstantBuffer)
-						.Select(cbuffer => new ConstantBuffer(device, cbuffer))
-						.ToArray();
-					_cbuffers_buffers = _cbuffers.Select(cbuffer => cbuffer.Buffer).ToArray();
+				default:
+					throw new Exception("Unsupported shader profile: " + profile);
+			}
 
-					// Gather resource and sampler inputs.
-					var boundResources = reflection.GetBoundResources();
-					_resourceVariables = boundResources
-						.Where(desc => IsShaderResource(desc.Type))
-						.Select(desc => new ShaderResourceVariable(desc, Frequency))
-						.ToArray();
-					_samplerVariables = boundResources
-						.Where(desc => desc.Type == ShaderInputType.Sampler)
-						.Select(desc => new ShaderSamplerVariable(desc, Frequency))
-						.ToArray();
-					_uavVariables = boundResources
-						.Where(desc => IsUav(desc.Type))
-						.Select(desc => new ShaderUavVariable(desc, Frequency))
-						.ToArray();
-				}
+			// Get info about the shader's inputs.
+			using (var reflection = new ShaderReflection(bytecode))
+			{
+				// Gether constant buffers.
+				_cbuffers = reflection.GetConstantBuffers()
+					.Where(cbuffer => cbuffer.Description.Type == ConstantBufferType.ConstantBuffer)
+					.Select(cbuffer => new ConstantBuffer(device, cbuffer))
+					.ToArray();
+				_cbuffers_buffers = _cbuffers.Select(cbuffer => cbuffer.Buffer).ToArray();
+
+				// Gather resource and sampler inputs.
+				var boundResources = reflection.GetBoundResources();
+				_resourceVariables = boundResources
+					.Where(desc => IsShaderResource(desc.Type))
+					.Select(desc => new ShaderResourceVariable(desc, Frequency))
+					.ToArray();
+				_samplerVariables = boundResources
+					.Where(desc => desc.Type == ShaderInputType.Sampler)
+					.Select(desc => new ShaderSamplerVariable(desc, Frequency))
+					.ToArray();
+				_uavVariables = boundResources
+					.Where(desc => IsUav(desc.Type))
+					.Select(desc => new ShaderUavVariable(desc, Frequency))
+					.ToArray();
 			}
 		}
 
@@ -78,15 +79,19 @@ namespace ShaderUnit.Rendering.Shaders
 		public static Shader CompileFromFile(Device device, string filename, string entryPoint, string profile,
 			Func<string, string> includeLookup, ShaderMacro[] defines)
 		{
-			try
+			// SharpDX doesn't throw for *all* shader compile errors, so simplify things an throw for none.
+			Configuration.ThrowOnShaderCompileError = false;
+
+			var includeHandler = includeLookup != null ? new IncludeHandler(includeLookup) : null;
+			using (var compilationResult = ShaderBytecode.CompileFromFile(filename, entryPoint, profile, ShaderFlags.None, EffectFlags.None, defines, includeHandler))
 			{
-				var includeHandler = includeLookup != null ? new IncludeHandler(includeLookup) : null;
-				return new Shader(device, profile, includeHandler,
-					() => ShaderBytecode.CompileFromFile(filename, entryPoint, profile, ShaderFlags.None, EffectFlags.None, defines, includeHandler));
-			}
-			catch (CompilationException ex)
-			{
-				throw TranslateException(ex, filename, includeLookup);
+				// Don't check HasErrors or the status code, since apparent they sometimes
+				// indicate succes even when the compile failed!
+				if (compilationResult.Bytecode == null)
+				{
+					throw TranslateErrors(compilationResult, filename, includeLookup);
+				}
+				return new Shader(device, profile, includeHandler, compilationResult.Bytecode);
 			}
 		}
 
@@ -95,15 +100,17 @@ namespace ShaderUnit.Rendering.Shaders
 		public static Shader CompileFromString(Device device, string source, string entryPoint, string profile,
 			Func<string, string> includeLookup, ShaderMacro[] defines)
 		{
-			try
+			// SharpDX doesn't throw for *all* shader compile errors, so simplify things an throw for none.
+			Configuration.ThrowOnShaderCompileError = false;
+
+			var includeHandler = includeLookup != null ? new IncludeHandler(includeLookup) : null;
+			using (var compilationResult = ShaderBytecode.Compile(source, entryPoint, profile, ShaderFlags.None, EffectFlags.None, defines, includeHandler))
 			{
-				var includeHandler = includeLookup != null ? new IncludeHandler(includeLookup) : null;
-				return new Shader(device, profile, includeHandler,
-					() => ShaderBytecode.Compile(source, entryPoint, profile, ShaderFlags.None, EffectFlags.None, defines, includeHandler));
-			}
-			catch (CompilationException ex)
-			{
-				throw TranslateException(ex, "<string>", includeLookup);
+				if (compilationResult.HasErrors)
+				{
+					throw TranslateErrors(compilationResult, "<string>", includeLookup);
+				}
+				return new Shader(device, profile, includeHandler, compilationResult.Bytecode);
 			}
 		}
 
@@ -159,24 +166,25 @@ namespace ShaderUnit.Rendering.Shaders
 		// List of files that were included by this shader.
 		public IEnumerable<IncludedFile> IncludedFiles { get; }
 
-		private static Exception TranslateException(CompilationException ex, string baseFilename, Func<string, string> includeLookup)
+		private static Exception TranslateErrors(CompilationResult result, string baseFilename, Func<string, string> includeLookup)
 		{
 			// The shader compiler error messages contain the name used to
 			// include the file, rather than the full path, so we convert them back
 			// with some regex fun.
 
-			var filenameRegex = new Regex(@"^(.*)(\([0-9]+,[0-9]+\))", RegexOptions.Multiline);
+			var filenameRegex = new Regex(@"^(.*)(\([0-9]+,[0-9\-]+\))", RegexOptions.Multiline);
 
-			// When compiling from string, the errors come from some weird non-existant path.
-			var inMemoryFileRegex = new Regex(@"Shader@0x[0-9A-F]{8}$");
+			// SharpDX always passes a string to D3D, so errors in the original file (or string) are reported incorrectly.
+			// For whatever reason, they show up as being in a file "unknown" in the current working directory.
+			var unknownFile = Path.Combine(Environment.CurrentDirectory, "unknown");
 
 			MatchEvaluator replacer = match =>
 			{
 				var matchedFile = match.Groups[1].Value;
-				
+
 				// If the filename is the original input filename, or the weird in-memory file, use the given name.
 				string path;
-				if (matchedFile == baseFilename || inMemoryFileRegex.IsMatch(matchedFile))
+				if (matchedFile == unknownFile)
 				{
 					path = baseFilename;
 				}
@@ -190,9 +198,9 @@ namespace ShaderUnit.Rendering.Shaders
 				return path + match.Groups[2];
 			};
 
-			var message = filenameRegex.Replace(ex.Message, replacer);
+			var message = filenameRegex.Replace(result.Message, replacer);
 
-			return new ShaderUnitException(message, ex);
+			return new ShaderUnitException(message);
 		}
 
 		// Get all variables from all cbuffers.
