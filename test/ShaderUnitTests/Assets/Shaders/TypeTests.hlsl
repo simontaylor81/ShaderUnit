@@ -16,4 +16,16 @@ int4 Ret_int4() { return int4(1, 2, 3, 4); }
 float4x4 Ret_float4x4() { return float4x4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16); }
 
 // Parameter types.
-float In_float4x4(float4x4 param) { return param[1][3]; }
+float In_float(float param) { return param; }
+float In_int(int param) { return (float)param; }
+float In_uint(uint param) { return (float)param; }
+
+float In_float2(float2 param) { return param.y; }
+float In_float3(float3 param) { return param.z; }
+float In_float4(float4 param) { return param.w; }
+
+float In_int2(int2 param) { return (float)param.y; }
+float In_int3(int3 param) { return (float)param.z; }
+float In_int4(int4 param) { return (float)param.w; }
+
+float In_float4x4(float4x4 param) { return param._24; }

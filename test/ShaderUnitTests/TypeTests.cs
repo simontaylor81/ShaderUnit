@@ -30,5 +30,24 @@ namespace ShaderUnitTests
 			new object[] { "float4", new Vector4(1.0f, 2.0f, 3.0f, 4.0f) },
 			new object[] { "float4x4", new Matrix4x4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16) },
 		};
+
+		[Test, TestCaseSource(nameof(ParamTypeCases))]
+		public void ParamType(string type, object param)
+		{
+			var result = CreateComputeHarness().ExecuteShaderFunction<float>("TypeTests.hlsl", "In_" + type, param);
+			Assert.That(result, Is.EqualTo(1.0f));	// All cases are written to return 1.0f
+		}
+
+		// Separate data source, as attribute params cannot be structs (e.g. Vector3).
+		static object[] ParamTypeCases => new[]
+		{
+			new object[] { "float", 1.0f },
+			new object[] { "int", 1 },
+			new object[] { "uint", 1u },
+			new object[] { "float2", new Vector2(0, 1.0f) },
+			new object[] { "float3", new Vector3(0, 0, 1.0f) },
+			new object[] { "float4", new Vector4(0, 0, 0, 1.0f) },
+			new object[] { "float4x4", new Matrix4x4(0, 0, 0, 0, 0, 0, 0, 1.0f, 0, 0, 0, 0, 0, 0, 0, 0) },
+		};
 	}
 }
