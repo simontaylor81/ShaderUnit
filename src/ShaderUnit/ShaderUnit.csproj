@@ -92,6 +92,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Rendering\Shaders\ShaderCompiler.cs" />
     <Compile Include="Util\CompositeDisposable.cs" />
     <Compile Include="Util\DictionaryExtensions.cs" />
     <Compile Include="Util\DisposableUtil.cs" />

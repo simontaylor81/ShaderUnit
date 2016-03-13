@@ -35,7 +35,7 @@ namespace ShaderUnit.Rendering
 			if (!File.Exists(path))
 				throw new ShaderUnitException("Shader file " + filename + " not found.");
 
-			return AddResource(Shader.CompileFromFile(_device.Device,
+			return AddResource(ShaderCompiler.CompileFromFile(_device.Device,
 				path, entryPoint, profile, FindShader, ConvertDefines(defines)));
 		}
 
@@ -46,7 +46,7 @@ namespace ShaderUnit.Rendering
 		{
 			// Don't cache shader from string.
 			// Not needed in unit testing environment.
-			return AddResource(Shader.CompileFromString(
+			return AddResource(ShaderCompiler.CompileFromString(
 				_device.Device, source, entryPoint, profile, FindShader, ConvertDefines(defines)));
 		}
 
