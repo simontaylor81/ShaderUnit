@@ -26,6 +26,6 @@ namespace ShaderUnit.Interfaces
 		int Width { get; }
 		int Height { get; }
 
-		//IEnumerable<T> GetContents<T>() where T : struct;
+		IEnumerable<T> GetContents<T>() where T : struct;
 	}
 }

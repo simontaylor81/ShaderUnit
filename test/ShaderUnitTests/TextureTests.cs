@@ -36,7 +36,7 @@ namespace ShaderUnitTests
 			int height = 4;
 
 			// Create texture with constant colour.
-			var texture = _testHarness.RenderInterface.CreateTexture2D(width, height, Format.R8G8B8A8_UNorm, EnumerableEx.Repeat(0x000000FF, 16));
+			var texture = _testHarness.RenderInterface.CreateTexture2D(width, height, Format.R8G8B8A8_UNorm, EnumerableEx.Repeat(0x000000FF, width * height));
 			Assert.That(texture.Width, Is.EqualTo(width));
 			Assert.That(texture.Height, Is.EqualTo(height));
 
@@ -55,6 +55,31 @@ namespace ShaderUnitTests
 
 			var expected = EnumerableEx.Repeat(new Vector4(1, 0, 0, 1), texture.Width * texture.Height);
 			Assert.That(results, Is.EqualTo(expected));
+		}
+
+		[Test]
+		public void TextureReadBack()
+		{
+			// Use funny size and single-byte format so stride != width * bytes-per-pixel.
+			int width = 5;
+			int height = 5;
+
+			var contents = Enumerable.Range(0, width * height).Select(x => (byte)x);
+			var texture = _testHarness.RenderInterface.CreateTexture2D(width, height, Format.R8_UNorm, contents);
+			var result = texture.GetContents<byte>();
+
+			Assert.That(result, Is.EqualTo(contents));
+		}
+
+		[Test]
+		public void TextureReadBackInvalidType()
+		{
+			var contents = Enumerable.Range(0, 16);
+			var texture = _testHarness.RenderInterface.CreateTexture2D(4, 4, Format.R8G8B8A8_UNorm, contents);
+
+			var ex = Assert.Throws<ShaderUnitException>(() => texture.GetContents<Vector4>());
+
+			Assert.That(ex.Message, Is.EqualTo("Type 'System.Numerics.Vector4' is too big for reading texture of format 'R8G8B8A8_UNorm'"));
 		}
 	}
 }

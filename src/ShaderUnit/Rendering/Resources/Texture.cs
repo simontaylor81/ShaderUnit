@@ -46,6 +46,52 @@ namespace ShaderUnit.Rendering.Resources
 			DisposableUtil.SafeDispose(Texture2D);
 		}
 
+		// Read back the contents of the texture from the GPU.
+		public IEnumerable<T> GetContents<T>() where T : struct
+		{
+			var device = Texture2D.Device;
+
+			// Create staging resource.
+			var desc = new Texture2DDescription
+			{
+				Width = Width,
+				Height = Height,
+				MipLevels = 1,
+				ArraySize = 1,
+				SampleDescription = new SharpDX.DXGI.SampleDescription(1, 0),
+				Format = Texture2D.Description.Format,
+				CpuAccessFlags = CpuAccessFlags.Read,
+				Usage = ResourceUsage.Staging,
+			};
+			var staging = new Texture2D(device, desc);
+
+			// Copy to staging resource.
+			device.ImmediateContext.CopySubresourceRegion(Texture2D, 0, null, staging, 0);
+
+			// Map staging resource.
+			DataStream stream;
+			var dataBox = Texture2D.Device.ImmediateContext.MapSubresource(staging, 0, MapMode.Read, MapFlags.None, out stream);
+
+			using (stream)
+			{
+				// Check size -- DataStream is not bounds checked.
+				if (dataBox.RowPitch < Width * MarshalUtil.SizeOf<T>())
+				{
+					throw new ShaderUnitException($"Type '{typeof(T).ToString()}' is too big for reading texture of format '{Texture2D.Description.Format.ToString()}'");
+				}
+
+				// Read out scanlines.
+				return Enumerable.Range(0, Height)
+					.Select(y =>
+					{
+						stream.Position = y * dataBox.RowPitch;
+						return stream.ReadRange<T>(Width);
+					})
+					.SelectMany(x => x)
+					.ToList();
+			}
+		}
+
 		// Create a texture from a file.
 		// TODO: Not sure if this is the best strategy long term.
 		// Probably want to separate import from render resource creation.

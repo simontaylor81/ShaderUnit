@@ -72,7 +72,11 @@ namespace ShaderUnit.Rendering.Resources
 		{
 			DataStream stream;
 			_buffer.Device.ImmediateContext.MapSubresource(_buffer, 0, MapMode.Read, MapFlags.None, out stream);
-			return stream.ReadRange<T>((int)(stream.Length / MarshalUtil.SizeOf<T>()));
+
+			using (stream)
+			{
+				return stream.ReadRange<T>((int)(stream.Length / MarshalUtil.SizeOf<T>()));
+			}
 		}
 	}
 }
