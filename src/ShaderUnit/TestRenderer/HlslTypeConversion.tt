@@ -4,6 +4,7 @@
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 using System;
+using System.Collections.Generic;
 
 namespace ShaderUnit.TestRenderer
 {
@@ -13,54 +14,11 @@ namespace ShaderUnit.TestRenderer
 		// Supports only certain known types.
 		public static string ClrTypeToHlsl(Type type)
 		{
-			if (type == typeof(float))
+			HlslTypeInfo typeInfo;
+			if (_types.TryGetValue(type, out typeInfo))
 			{
-				return "float";
+				return typeInfo.hlslType;
 			}
-			else if (type == typeof(int))
-			{
-				return "int";
-			}
-			else if (type == typeof(uint))
-			{
-				return "uint";
-			}
-<# foreach (var vectorType in NumericsVectorTypes())
-{
-#>
-			else if (type == typeof(<#= vectorType.name #>))
-			{
-				return "float<#= vectorType.size #>";
-			}
-<#
-}
-#>
-<# foreach (var vectorType in ShaderUnitVecTypes())
-{
-#>
-			else if (type == typeof(<#= vectorType.name #>))
-			{
-				return "float<#= vectorType.size #>";
-			}
-<#
-}
-#>
-			else if (type == typeof(System.Numerics.Matrix4x4))
-			{
-				// System.Numerics.Matrix4x4 is row-major in memory, so match that.
-				return "row_major float4x4";
-			}
-<# foreach (var matrixType in ShaderUnitMatrixTypes())
-{
-#>
-			else if (type == typeof(<#= matrixType.name #>))
-			{
-				// ShaderUnit.Maths.Matrix4x4 is also row-major in memory, so match that.
-				return "row_major float<#= matrixType.sizeX #>x<#= matrixType.sizeY #>";
-			}
-<#
-}
-#>
 
 			throw new ArgumentException($"Type cannot be converted to HLSL: {type.ToString()}", nameof(type));
 		}
@@ -69,53 +27,84 @@ namespace ShaderUnit.TestRenderer
 		// Supports only certain known types.
 		public static string ClrValueToHlslLiteral(object value)
 		{
-			var type = value.GetType();
-			if (type == typeof(float) || type == typeof(int) || type == typeof(uint))
+			HlslTypeInfo typeInfo;
+			if (_types.TryGetValue(value.GetType(), out typeInfo))
 			{
-				// Scalars are easy.
-				return value.ToString();
+				return typeInfo.makeLiteral(value);
 			}
+
+			throw new ArgumentException($"Value cannot be converted to HLSL: {value.ToString()}", nameof(value));
+		}
+
+		// Initialise type lookup table.
+		static HlslTypeConversion()
+		{
+			// Scalars.
+			AddTypeInfo(typeof(float), "float", value => value.ToString());
+			AddTypeInfo(typeof(int), "int", value => value.ToString());
+			AddTypeInfo(typeof(uint), "uint", value => value.ToString());
+
+			// System.Numerics Vectors
 <# foreach (var vectorType in NumericsVectorTypes())
 {
 #>
-			else if (type == typeof(<#= vectorType.name #>))
+			AddTypeInfo(typeof(<#= vectorType.clrName #>), "<#= vectorType.HlslType #>", value =>
 			{
-				var vec = (<#= vectorType.name #>)value;
-				return $"float<#= vectorType.size #>(<#= VectorAccess(vectorType.size, true) #>)";
-			}
-<#
-}
-#>
-<# foreach (var vectorType in ShaderUnitVecTypes())
-{
-#>
-			else if (type == typeof(<#= vectorType.name #>))
-			{
-				var vec = (<#= vectorType.name #>)value;
-				return $"float<#= vectorType.size #>(<#= VectorAccess(vectorType.size, false) #>)";
-			}
-<#
-}
-#>
-			else if (type == typeof(System.Numerics.Matrix4x4))
-			{
-				var m = (System.Numerics.Matrix4x4)value;
-				return $"float4x4({m.M11}, {m.M12}, {m.M13}, {m.M14}, {m.M21}, {m.M22}, {m.M23}, {m.M24}, {m.M31}, {m.M32}, {m.M33}, {m.M34}, {m.M41}, {m.M42}, {m.M43}, {m.M44})";
-			}
-<# foreach (var matrixType in ShaderUnitMatrixTypes())
-{
-#>
-			else if (type == typeof(<#= matrixType.name #>))
-			{
-				var m = (<#= matrixType.name #>)value;
-				return $"float<#= matrixType.sizeX #>x<#= matrixType.sizeY #>(<#= MatrixAccess(matrixType.sizeX, matrixType.sizeY) #>)";
-			}
+				var vec = (<#= vectorType.clrName #>)value;
+				return $"<#= vectorType.HlslType #>(<#= VectorAccess(vectorType.size, true) #>)";
+			});
 <#
 }
 #>
 
-			throw new ArgumentException($"Value cannot be converted to HLSL: {value.ToString()}", nameof(value));
+			// ShaderUnit.Maths Vec types
+<# foreach (var vectorType in ShaderUnitVecTypes())
+{
+#>
+			AddTypeInfo(typeof(<#= vectorType.clrName #>), "<#= vectorType.HlslType #>", value =>
+			{
+				var vec = (<#= vectorType.clrName #>)value;
+				return $"<#= vectorType.HlslType#>(<#= VectorAccess(vectorType.size, false) #>)";
+			});
+<#
+}
+#>
+
+			// System.Numerics.Matrix4x4
+			// System.Numerics.Matrix4x4 is row-major in memory, so match that.
+			AddTypeInfo(typeof(System.Numerics.Matrix4x4), "row_major float4x4", value =>
+			{
+				var m = (System.Numerics.Matrix4x4)value;
+				return $"float4x4(<#= MatrixAccess(4, 4, true) #>)";
+			});
+
+			// ShaderUnit.Maths Matrix types.
+			// ShaderUnit.Maths Matrix types are also row-major in memory, so match that here too.
+<# foreach (var matrixType in ShaderUnitMatrixTypes())
+{
+#>
+			AddTypeInfo(typeof(<#= matrixType.clrName #>), "row_major <#= matrixType.HlslType #>", value =>
+			{
+				var m = (<#= matrixType.clrName #>)value;
+				return $"<#= matrixType.HlslType #>(<#= MatrixAccess(matrixType.sizeX, matrixType.sizeY, false) #>)";
+			});
+<#
+}
+#>
 		}
+
+		private static void AddTypeInfo(Type type, string hlslType, Func<object, string> makeLiteral)
+		{
+			_types.Add(type, new HlslTypeInfo { hlslType = hlslType, makeLiteral = makeLiteral });
+		}
+
+		private struct HlslTypeInfo
+		{
+			public string hlslType;
+			public Func<object, string> makeLiteral;
+		}
+
+		private static Dictionary<Type, HlslTypeInfo> _types = new Dictionary<Type, HlslTypeInfo>();
 	}
 }
 
@@ -124,14 +113,20 @@ namespace ShaderUnit.TestRenderer
 private struct VectorType
 {
 	public int size;
-	public string name;
+	public string clrName;
+	public string hlslBaseType;
+
+	public string HlslType { get { return string.Format("{0}{1}", hlslBaseType, size); } }
 }
 
 private struct MatrixType
 {
 	public int sizeX;
 	public int sizeY;
-	public string name;
+	public string clrName;
+	public string hlslBaseType;
+
+	public string HlslType { get { return string.Format("{0}{1}x{2}", hlslBaseType, sizeX, sizeY); } }
 }
 
 private IEnumerable<VectorType> NumericsVectorTypes()
@@ -139,27 +134,43 @@ private IEnumerable<VectorType> NumericsVectorTypes()
 	return Enumerable.Range(2, 3).Select(i => new VectorType
 	{
 		size = i,
-		name = "System.Numerics.Vector" + i.ToString(),
+		clrName = "System.Numerics.Vector" + i.ToString(),
+		hlslBaseType = "float",
 	});
+}
+
+private IEnumerable<string> ShaderUnitMathsBaseTypes()
+{
+	// Handily these are all the same in C# and HLSL.
+	return new[] { "float", "int", "uint" };
 }
 
 private IEnumerable<VectorType> ShaderUnitVecTypes()
 {
-	return Enumerable.Range(2, 3).Select(i => new VectorType
-	{
-		size = i,
-		name = string.Format("ShaderUnit.Maths.Vec{0}<float>", i),
-	});
+	return 
+		from baseType in ShaderUnitMathsBaseTypes()
+		from i in Enumerable.Range(2, 3)
+		select new VectorType
+		{
+			size = i,
+			clrName = string.Format("ShaderUnit.Maths.Vec{0}<{1}>", i, baseType),
+			hlslBaseType = baseType,
+		};
 }
 
 private IEnumerable<MatrixType> ShaderUnitMatrixTypes()
 {
-	return Enumerable.Range(1, 4).SelectMany(x => Enumerable.Range(1, 4), (x, y) => new MatrixType
-	{
-		sizeX = x,
-		sizeY = y,
-		name = string.Format("ShaderUnit.Maths.Matrix{0}x{1}<float>", x, y),
-	});
+	return
+		from baseType in ShaderUnitMathsBaseTypes()
+		from x in Enumerable.Range(1, 4)
+		from y in Enumerable.Range(1, 4)
+		select new MatrixType
+		{
+			sizeX = x,
+			sizeY = y,
+			clrName = string.Format("ShaderUnit.Maths.Matrix{0}x{1}<{2}>", x, y, baseType),
+			hlslBaseType = baseType,
+		};
 }
 
 private IEnumerable<string> VectorComponents(int size, bool uppercase)
@@ -178,14 +189,19 @@ private string VectorAccess(int size, bool uppercase)
 		.Select(component => "{vec." + component + "}"));
 }
 
-private IEnumerable<string> MatrixComponents(int sizeX, int sizeY)
+private IEnumerable<string> MatrixComponents(int sizeX, int sizeY, bool uppercase)
 {
-	return Enumerable.Range(1, sizeX).SelectMany(x => Enumerable.Range(1, sizeY), (x, y) => string.Format("m{0}{1}", x, y));
+	var result = Enumerable.Range(1, sizeX).SelectMany(x => Enumerable.Range(1, sizeY), (x, y) => string.Format("m{0}{1}", x, y));
+	if (uppercase)
+	{
+		result = result.Select(x => x.ToUpperInvariant());
+	}
+	return result;
 }
 
-private string MatrixAccess(int sizeX, int sizeY)
+private string MatrixAccess(int sizeX, int sizeY, bool uppercase)
 {
-	return string.Join(", ", MatrixComponents(sizeX, sizeY)
+	return string.Join(", ", MatrixComponents(sizeX, sizeY, uppercase)
 		.Select(component => "{m." + component + "}"));
 }
 
