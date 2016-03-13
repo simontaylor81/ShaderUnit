@@ -17,6 +17,11 @@ namespace ShaderUnit.Rendering
 	{
 		public ScriptRenderControl(IWorkspace workspace, RenderDevice device)
 		{
+			if (device == null)
+			{
+				throw new ArgumentNullException(nameof(device));
+			}
+
 			_workspace = workspace;
 			_device = device;
 
