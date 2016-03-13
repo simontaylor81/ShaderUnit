@@ -338,7 +338,7 @@ namespace ShaderUnit.Rendering.Shaders
 				_includedFiles.Add(new IncludedFile { SourceName = filename, ResolvedFile = path });
 
 				// Open file stream.
-				return new FileStream(path, FileMode.Open);
+				return new FileStream(path, FileMode.Open, FileAccess.Read);
 			}
 
 			public void Close(Stream stream)
