@@ -1,0 +1,65 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+namespace ShaderUnit.Maths
+{
+<#
+for(int sizeX = 1; sizeX <= 4; sizeX++)
+{
+for(int sizeY = 1; sizeY <= 4; sizeY++)
+{
+#>
+	public struct <#WriteClassName(sizeX, sizeY);#><T>
+	{
+<#
+foreach (var component in Components(sizeX, sizeY))
+{
+#>
+		public T <#= component #>;
+<#
+}
+#>
+
+		public <#WriteClassName(sizeX, sizeY);#>(<#= ComponentArgList(sizeX, sizeY) #>)
+		{
+<#
+foreach (var component in Components(sizeX, sizeY))
+{
+#>
+			this.<#= component #> = <#= component #>;
+<#
+}
+#>
+		}
+	}
+
+<#
+}
+}
+#>
+}
+
+<#+
+private void WriteClassName(int sizeX, int sizeY)
+{
+	Write(string.Format("Matrix{0}x{1}", sizeX, sizeY));
+}
+
+private string ComponentName(int indexX, int indexY)
+{
+	return string.Format("m{0}{1}", indexX + 1, indexY + 1);
+}
+
+private IEnumerable<string> Components(int sizeX, int sizeY)
+{
+	return Enumerable.Range(0, sizeX)
+		.SelectMany(x => Enumerable.Range(0, sizeY), (x, y) => ComponentName(x, y));
+}
+
+private string ComponentArgList(int sizeX, int sizeY)
+{
+	return string.Join(", ", Components(sizeX, sizeY).Select(x => "T " + x));
+}
+#>

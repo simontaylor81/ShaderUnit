@@ -1,9 +1,8 @@
-﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+﻿<#@ template language="C#" #>
 <#@ assembly name="System.Core" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
-<#@ output extension=".cs" #>
 namespace ShaderUnit.Maths
 {
 <#
@@ -12,20 +11,20 @@ for(int size = 2; size <= 4; size++)
 #>
 	public struct Vec<#= size #><T>
 	{
-<# for (int component = 0; component < size; component++)
+<# foreach (var component in Components(size))
 	{
 #>
-		public T <#= ComponentName(component) #>;
+		public T <#= component #>;
 <#
 	}
 #>
 
 		public Vec<#= size #>(<#= ComponentArgList(size) #>)
 		{
-<# for (int component = 0; component < size; component++)
+<# foreach (var component in Components(size))
 	{
 #>
-			this.<#= ComponentName(component) #> = <#= ComponentName(component) #>;
+			this.<#= component #> = <#= component #>;
 <#
 	}
 #>
@@ -33,7 +32,7 @@ for(int size = 2; size <= 4; size++)
 	}
 
 <#
-} 
+}
 #>
 }
 
