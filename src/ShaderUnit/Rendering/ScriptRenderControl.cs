@@ -33,7 +33,7 @@ namespace ShaderUnit.Rendering
 		{
 			var path = FindShader(filename);
 			if (!File.Exists(path))
-				throw new ShaderUnitException("Shader file " + filename + " not found in project.");
+				throw new ShaderUnitException("Shader file " + filename + " not found.");
 
 			return AddResource(Shader.CompileFromFile(_device.Device,
 				path, entryPoint, profile, FindShader, ConvertDefines(defines)));
@@ -57,12 +57,12 @@ namespace ShaderUnit.Rendering
 				.ToArray();
 
 		// Lookup a shader filename in the project to retrieve the full path.
-		private string FindShader(string name)
+		private string FindShader(string filename)
 		{
-			var path = _workspace.FindProjectFile(name);
-			if (path == null)
+			var path = _workspace.GetAbsolutePath(filename);
+			if (!File.Exists(path))
 			{
-				throw new ShaderUnitException("Could not find shader file: " + name);
+				throw new ShaderUnitException("Could not find shader file: " + filename);
 			}
 
 			return path;

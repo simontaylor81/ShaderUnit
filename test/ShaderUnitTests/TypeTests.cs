@@ -15,7 +15,7 @@ namespace ShaderUnitTests
 		[Test, TestCaseSource(nameof(ReturnTypeCases))]
 		public void ReturnType<T>(string type, T expected) where T : struct
 		{
-			var result = CreateComputeHarness().ExecuteShaderFunction<T>("TypeTests.hlsl", "Ret_" + type);
+			var result = CreateComputeHarness().ExecuteShaderFunction<T>("Shaders/TypeTests.hlsl", "Ret_" + type);
 			Assert.That(result, Is.EqualTo(expected));
 		}
 
@@ -34,7 +34,7 @@ namespace ShaderUnitTests
 		[Test, TestCaseSource(nameof(ParamTypeCases))]
 		public void ParamType(string type, object param)
 		{
-			var result = CreateComputeHarness().ExecuteShaderFunction<float>("TypeTests.hlsl", "In_" + type, param);
+			var result = CreateComputeHarness().ExecuteShaderFunction<float>("Shaders/TypeTests.hlsl", "In_" + type, param);
 			Assert.That(result, Is.EqualTo(1.0f));	// All cases are written to return 1.0f
 		}
 

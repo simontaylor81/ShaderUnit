@@ -18,8 +18,8 @@ namespace ShaderUnit.SampleTests
 			var harness = CreateRenderHarness(64, 64);
 			var ri = harness.RenderInterface;
 
-			var vs = ri.CompileShader("ConstantColour.hlsl", "VS", "vs_4_0");
-			var ps = ri.CompileShader("ConstantColour.hlsl", "PS", "ps_4_0");
+			var vs = ri.CompileShader("Shaders/ConstantColour.hlsl", "VS", "vs_4_0");
+			var ps = ri.CompileShader("Shaders/ConstantColour.hlsl", "PS", "ps_4_0");
 
 			ps.FindConstantVariable("Colour").Set(new Vector4(1, 0, 0, 1));
 
@@ -34,8 +34,8 @@ namespace ShaderUnit.SampleTests
 			var harness = CreateRenderHarness(64, 64);
 			var ri = harness.RenderInterface;
 
-			var vs = ri.CompileShader("ConstantColour.hlsl", "VS", "vs_4_0");
-			var ps = ri.CompileShader("ConstantColour.hlsl", "PS", "ps_4_0");
+			var vs = ri.CompileShader("Shaders/ConstantColour.hlsl", "VS", "vs_4_0");
+			var ps = ri.CompileShader("Shaders/ConstantColour.hlsl", "PS", "ps_4_0");
 
 			ps.FindConstantVariable("Colour").Set(new Vector4(r, g, b, a));
 

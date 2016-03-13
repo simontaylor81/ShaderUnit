@@ -87,7 +87,9 @@
     <Content Include="Assets\Shaders\Errors\MissingEntryPoint.hlsl" />
     <Content Include="Assets\Shaders\Errors\SyntaxError.hlsl" />
     <Content Include="Assets\Shaders\Includee.hlsl" />
-    <Content Include="Assets\Shaders\Includer.hlsl" />
+    <Content Include="Assets\Shaders\AbsoluteIncluder.hlsl" />
+    <Content Include="Assets\Shaders\NestedRelativeIncluder.hlsl" />
+    <Content Include="Assets\Shaders\RelativeIncluder.hlsl" />
     <Content Include="Assets\Shaders\ReadTexture.hlsl" />
     <Content Include="Assets\Shaders\TypeTests.hlsl" />
     <Content Include="Assets\Shaders\ValidShaders.hlsl" />

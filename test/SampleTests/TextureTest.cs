@@ -16,8 +16,8 @@ namespace ShaderUnit.SampleTests
 			var harness = CreateRenderHarness(64, 64);
 			var ri = harness.RenderInterface;
 
-			var vs = ri.CompileShader("FullscreenTexture.hlsl", "FullscreenTexture_VS", "vs_4_0");
-			var ps = ri.CompileShader("FullscreenTexture.hlsl", "FullscreenTexture_PS", "ps_4_0");
+			var vs = ri.CompileShader("Shaders/FullscreenTexture.hlsl", "FullscreenTexture_VS", "vs_4_0");
+			var ps = ri.CompileShader("Shaders/FullscreenTexture.hlsl", "FullscreenTexture_PS", "ps_4_0");
 
 			var texture = ri.LoadTexture("Textures/ThisIsATest.png");
 
@@ -33,8 +33,8 @@ namespace ShaderUnit.SampleTests
 			var harness = CreateRenderHarness(64, 64);
 			var ri = harness.RenderInterface;
 
-			var vs = ri.CompileShader("FullscreenTexture.hlsl", "FullscreenTexture_VS", "vs_4_0");
-			var ps = ri.CompileShader("FullscreenTexture.hlsl", "FullscreenTexture_PS", "ps_4_0");
+			var vs = ri.CompileShader("Shaders/FullscreenTexture.hlsl", "FullscreenTexture_VS", "vs_4_0");
+			var ps = ri.CompileShader("Shaders/FullscreenTexture.hlsl", "FullscreenTexture_PS", "ps_4_0");
 
 			var size = 64;
 			var contents = Enumerable.Range(0, size)

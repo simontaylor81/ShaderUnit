@@ -14,7 +14,7 @@ namespace ShaderUnit.SampleTests
 		public void WriteToUAV()
 		{
 			var harness = CreateComputeHarness();
-			var cs = harness.RenderInterface.CompileShader("ComputeTest.hlsl", "WriteToUAV", "cs_5_0");
+			var cs = harness.RenderInterface.CompileShader("Shaders/ComputeTest.hlsl", "WriteToUAV", "cs_5_0");
 
 			var result = harness.DispatchToBuffer<float>(cs, "OutUAV", Tuple.Create(16, 1, 1));
 			Assert.That(result, Is.EqualTo(Enumerable.Range(0, 16).Select(i => 2.0f * i + 10.0f)));
@@ -26,7 +26,7 @@ namespace ShaderUnit.SampleTests
 			var harness = CreateComputeHarness();
 			var ri = harness.RenderInterface;
 
-			var cs = ri.CompileShader("ComputeTest.hlsl", "ReadFromBuffer", "cs_5_0");
+			var cs = ri.CompileShader("Shaders/ComputeTest.hlsl", "ReadFromBuffer", "cs_5_0");
 
 			// Input buffer.
 			var input = Enumerable.Range(0, 16).Select(x => (float)x);
@@ -43,7 +43,7 @@ namespace ShaderUnit.SampleTests
 			var harness = CreateComputeHarness();
 			var ri = harness.RenderInterface;
 
-			var cs = ri.CompileShader("ComputeTest.hlsl", "ReadFromComplexBuffer", "cs_5_0");
+			var cs = ri.CompileShader("Shaders/ComputeTest.hlsl", "ReadFromComplexBuffer", "cs_5_0");
 
 			// Input buffer.
 			var input = Enumerable.Range(0, 16).Select(x => new BufferElement
