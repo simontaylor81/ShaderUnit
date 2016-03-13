@@ -32,13 +32,13 @@ namespace ShaderUnit.Interfaces
 		object CreateRenderTarget();
 
 		// Create a 2D texture of the given size and format, and fill it with the given data.
-		IShaderResource CreateTexture2D<T>(int width, int height, Format format, IEnumerable<T> contents, bool generateMips = false) where T : struct;
+		ITexture2D CreateTexture2D<T>(int width, int height, Format format, IEnumerable<T> contents, bool generateMips = false) where T : struct;
 
 		// Create a structured buffer.
 		IBuffer CreateStructuredBuffer<T>(IEnumerable<T> contents, bool uav = false) where T : struct;
 
 		// Load a texture from a file.
-		IShaderResource LoadTexture(string path, object generateMips = null);
+		ITexture2D LoadTexture(string path, object generateMips = null);
 
 		// Handles to special resources.
 		//object BackBuffer { get; }

@@ -78,14 +78,14 @@ namespace ShaderUnit.Rendering
 		}
 
 		// Create a 2D texture of the given size and format, and fill it with the given data.
-		public IShaderResource CreateTexture2D<T>(int width, int height, Format format, IEnumerable<T> contents, bool generateMips = false) where T : struct
+		public ITexture2D CreateTexture2D<T>(int width, int height, Format format, IEnumerable<T> contents, bool generateMips = false) where T : struct
 		{
 			var mipGenerationMode = generateMips ? MipGenerationMode.Full : MipGenerationMode.None;
 			return AddResource(Texture.Create(_device.Device, width, height, format, contents, mipGenerationMode));
 		}
 
 		// Load a texture from disk.
-		public IShaderResource LoadTexture(string path, object generateMips = null)
+		public ITexture2D LoadTexture(string path, object generateMips = null)
 		{
 			var absPath = _workspace.GetAbsolutePath(path);
 
@@ -114,7 +114,7 @@ namespace ShaderUnit.Rendering
 
 		// Create a structured buffer.
 		public IBuffer CreateStructuredBuffer<T>(IEnumerable<T> contents, bool uav = false) where T : struct =>
-			AddResource(BufferHandle.CreateStructured(_device, uav, contents));
+			AddResource(Resources.Buffer.CreateStructured(_device.Device, uav, contents));
 
 		public void Dispose()
 		{

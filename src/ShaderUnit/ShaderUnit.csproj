@@ -103,7 +103,6 @@
     <Compile Include="Interfaces\Format.cs" />
     <Compile Include="Interfaces\RenderState.cs" />
     <Compile Include="Interfaces\Harnesses.cs" />
-    <Compile Include="Interfaces\IBuffer.cs" />
     <Compile Include="Interfaces\IRenderContext.cs" />
     <Compile Include="Interfaces\IRenderInterface.cs" />
     <Compile Include="Interfaces\IShaderResource.cs" />
@@ -127,7 +126,6 @@
     <Compile Include="Rendering\RenderUtils.cs" />
     <Compile Include="Rendering\ResourceHandles.cs" />
     <Compile Include="Rendering\Resources\Buffer.cs" />
-    <Compile Include="Rendering\Resources\BufferHandle.cs" />
     <Compile Include="Rendering\Resources\DepthBuffer.cs" />
     <Compile Include="Rendering\Resources\ID3DResource.cs" />
     <Compile Include="Rendering\Resources\RenderTarget.cs" />

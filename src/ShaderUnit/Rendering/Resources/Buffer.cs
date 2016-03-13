@@ -4,14 +4,18 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using ShaderUnit.Interfaces;
 using SharpDX;
 using SharpDX.Direct3D11;
 
 namespace ShaderUnit.Rendering.Resources
 {
-	class Buffer : ID3DShaderResource, IDisposable
+	class Buffer : ID3DShaderResource, IBuffer, IDisposable
 	{
 		private SharpDX.Direct3D11.Buffer _buffer;
+
+		public int ElementCount { get; }
+		public int SizeInBytes { get; }
 
 		public ShaderResourceView SRV { get; }
 		public UnorderedAccessView UAV { get; }
@@ -59,6 +63,9 @@ namespace ShaderUnit.Rendering.Resources
 			{
 				UAV = new UnorderedAccessView(device, _buffer);
 			}
+
+			ElementCount = sizeInBytes / stride;
+			SizeInBytes = sizeInBytes;
 		}
 
 		public void Dispose()

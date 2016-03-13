@@ -20,8 +20,11 @@ namespace ShaderUnit.Rendering.Resources
 		CreateOnly,	// Create the mip chain, but don't put any data in it.
 	}
 
-	public class Texture : ID3DShaderResource, IDisposable
+	public class Texture : ID3DShaderResource, ITexture2D, IDisposable
 	{
+		public int Width { get; }
+		public int Height { get; }
+
 		public Texture2D Texture2D { get; }
 		public ShaderResourceView SRV { get; }
 
@@ -43,6 +46,10 @@ namespace ShaderUnit.Rendering.Resources
 
 			// Create the SRV.
 			SRV = new ShaderResourceView(device, Texture2D);
+
+			var metadata = image.MetaData;
+			Width = (int)metadata.width;
+			Height = (int)metadata.height;
 		}
 
 		public void Dispose()
