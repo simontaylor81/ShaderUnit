@@ -121,7 +121,6 @@
     <Compile Include="Rendering\IDrawable.cs" />
     <Compile Include="Rendering\InputLayoutCache.cs" />
     <Compile Include="Rendering\Resources\RenderMesh.cs" />
-    <Compile Include="Rendering\MipGenerator.cs" />
     <Compile Include="Rendering\RenderDevice.cs" />
     <Compile Include="Rendering\RenderUtils.cs" />
     <Compile Include="Rendering\ResourceHandles.cs" />

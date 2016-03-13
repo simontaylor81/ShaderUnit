@@ -13,13 +13,6 @@ using System.Runtime.InteropServices;
 
 namespace ShaderUnit.Rendering.Resources
 {
-	public enum MipGenerationMode
-	{
-		None,		// Create texture without mipchain
-		Full,		// Generate full mipchain
-		CreateOnly,	// Create the mip chain, but don't put any data in it.
-	}
-
 	public class Texture : ID3DShaderResource, ITexture2D, IDisposable
 	{
 		public int Width { get; }
@@ -31,15 +24,11 @@ namespace ShaderUnit.Rendering.Resources
 		public UnorderedAccessView UAV { get { throw new NotImplementedException("TODO: Texture UAVs"); } }
 
 		// Simple constructor taking a texture and shader resource view.
-		public Texture(Device device, IScratchImage image, MipGenerationMode mipGenerationMode)
+		public Texture(Device device, IScratchImage image, bool generateMips)
 		{
-			if (mipGenerationMode == MipGenerationMode.Full)
+			if (generateMips)
 			{
 				image.GenerateMipMaps();
-			}
-			else if (mipGenerationMode == MipGenerationMode.CreateOnly)
-			{
-				image.CreateEmptyMipChain();
 			}
 
 			Texture2D = new Texture2D(image.CreateTexture(device.NativePointer));
@@ -61,16 +50,14 @@ namespace ShaderUnit.Rendering.Resources
 		// Create a texture from a file.
 		// TODO: Not sure if this is the best strategy long term.
 		// Probably want to separate import from render resource creation.
-		public static Texture LoadFromFile(Device device, string filename, MipGenerationMode mipGenerationMode)
+		public static Texture LoadFromFile(Device device, string filename, bool generateMips)
 		{
 			try
 			{
-				//var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-
 				// Load the texture itself using DirectXTex.
 				var image = LoadImage(filename);
 
-				return new Texture(device, image, mipGenerationMode);
+				return new Texture(device, image, generateMips);
 			}
 			catch (Exception ex)
 			{
@@ -79,7 +66,7 @@ namespace ShaderUnit.Rendering.Resources
 		}
 
 		// Create with given contents.
-		public static Texture Create<T>(Device device, int width, int height, Format format, IEnumerable<T> contents, MipGenerationMode mipGenerationMode) where T : struct
+		public static Texture Create<T>(Device device, int width, int height, Format format, IEnumerable<T> contents, bool generateMips) where T : struct
 		{
 			if (format.Size() != Marshal.SizeOf<T>())
 			{
@@ -88,7 +75,7 @@ namespace ShaderUnit.Rendering.Resources
 			var stream = contents.Take(width * height).ToDataStream();
 
 			var image = DirectXTex.Create2D(stream.DataPointer, format.Size() * width, width, height, (uint)format.ToDXGI());
-			return new Texture(device, image, mipGenerationMode);
+			return new Texture(device, image, generateMips);
 		}
 
 		private static IScratchImage LoadImage(string filename)

@@ -115,7 +115,7 @@ namespace ShaderUnit.Rendering
 
 			// Make a 1x1 texture.
 			var format = sRGB ? Interfaces.Format.R8G8B8A8_UNorm_SRgb : Interfaces.Format.R8G8B8A8_UNorm;
-			return Texture.Create(device, 1, 1, format, new[] { rgba }, MipGenerationMode.None);
+			return Texture.Create(device, 1, 1, format, new[] { rgba }, generateMips: false);
 		}
 	}
 }

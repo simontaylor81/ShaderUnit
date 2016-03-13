@@ -41,7 +41,7 @@ namespace ShaderUnit.Interfaces
 		IBuffer CreateStructuredBuffer(int sizeInBytes, int elementStride);
 
 		// Load a texture from a file.
-		ITexture2D LoadTexture(string path, object generateMips = null);
+		ITexture2D LoadTexture(string path, bool generateMips = true);
 
 		// Handles to special resources.
 		//object BackBuffer { get; }

@@ -24,8 +24,6 @@ namespace ShaderUnit.Rendering
 
 			_workspace = workspace;
 			_device = device;
-
-			_mipGenerator = new MipGenerator(device, workspace);
 		}
 
 		// IScriptRenderInterface implementation.
@@ -80,35 +78,14 @@ namespace ShaderUnit.Rendering
 		// Create a 2D texture of the given size and format, and fill it with the given data.
 		public ITexture2D CreateTexture2D<T>(int width, int height, Format format, IEnumerable<T> contents, bool generateMips = false) where T : struct
 		{
-			var mipGenerationMode = generateMips ? MipGenerationMode.Full : MipGenerationMode.None;
-			return AddResource(Texture.Create(_device.Device, width, height, format, contents, mipGenerationMode));
+			return AddResource(Texture.Create(_device.Device, width, height, format, contents, generateMips));
 		}
 
 		// Load a texture from disk.
-		public ITexture2D LoadTexture(string path, object generateMips = null)
+		public ITexture2D LoadTexture(string path, bool generateMips = true)
 		{
 			var absPath = _workspace.GetAbsolutePath(path);
-
-			MipGenerationMode mipGenerationMode = MipGenerationMode.None;
-			if (generateMips == null || generateMips.Equals(true))
-			{
-				mipGenerationMode = MipGenerationMode.Full;
-			}
-			else if (generateMips is string)
-			{
-				mipGenerationMode = MipGenerationMode.CreateOnly;
-			}
-
-			var texture = Texture.LoadFromFile(_device.Device, absPath, mipGenerationMode);
-
-			// We want mip generation errors to be reported directly, so this is
-			// outside the above try-catch.
-			if (mipGenerationMode == MipGenerationMode.CreateOnly)
-			{
-				// Generate custom mips.
-				_mipGenerator.Generate(texture, generateMips as string);
-			}
-
+			var texture = Texture.LoadFromFile(_device.Device, absPath, generateMips);
 			return AddResource(texture);
 		}
 
@@ -225,7 +202,5 @@ namespace ShaderUnit.Rendering
 
 		// Pointer back to the workspace. Needed so we can access the project to get shaders from.
 		private IWorkspace _workspace;
-
-		private readonly MipGenerator _mipGenerator;
 	}
 }
