@@ -14,12 +14,6 @@ namespace ShaderUnit.Interfaces.Shader
 		MAX
 	}
 
-	public struct IncludedFile
-	{
-		public string SourceName;       // Original name from the #include line.
-		public string ResolvedFile;     // File path that it was resolved to.
-	}
-
 	// A shader.
 	public interface IShader
 	{
@@ -41,8 +35,5 @@ namespace ShaderUnit.Interfaces.Shader
 		// Number of threads in thread group in x, y, and z dimensions.
 		// Only valid for compute shaders.
 		Tuple<int, int, int> ThreadGroupSize { get; }
-
-		// List of files that were included by this shader.
-		IEnumerable<IncludedFile> IncludedFiles { get; }
 	}
 }

@@ -19,21 +19,22 @@ namespace ShaderUnit.Rendering.Shaders
 		public static Shader CompileFromFile(Device device, string filename, string entryPoint, string profile,
 			Func<string, string> includeLookup, ShaderMacro[] defines)
 		{
+			if (includeLookup == null) { throw new ArgumentNullException(nameof(includeLookup)); }
+
 			// SharpDX doesn't throw for *all* shader compile errors, so simplify things an throw for none.
 			Configuration.ThrowOnShaderCompileError = false;
 
-			var includeHandler = includeLookup != null ? new IncludeHandler(includeLookup) : null;
+			var includeHandler = new IncludeHandler(includeLookup, filename);
 			using (var compilationResult = ShaderBytecode.CompileFromFile(filename, entryPoint, profile, ShaderFlags.None, EffectFlags.None, defines, includeHandler))
 			{
 				// Don't check HasErrors or the status code, since apparent they sometimes
 				// indicate succes even when the compile failed!
 				if (compilationResult.Bytecode == null)
 				{
-					throw TranslateErrors(compilationResult, filename, includeLookup);
+					throw TranslateErrors(compilationResult, filename, includeHandler);
 				}
 
-				var includedFiles = includeHandler != null ? includeHandler.IncludedFiles : Enumerable.Empty<IncludedFile>();
-				return new Shader(device, profile, includedFiles, compilationResult.Bytecode);
+				return new Shader(device, profile, compilationResult.Bytecode);
 			}
 		}
 
@@ -42,25 +43,26 @@ namespace ShaderUnit.Rendering.Shaders
 		public static Shader CompileFromString(Device device, string source, string entryPoint, string profile,
 			Func<string, string> includeLookup, ShaderMacro[] defines)
 		{
+			if (includeLookup == null) { throw new ArgumentNullException(nameof(includeLookup)); }
+
 			// SharpDX doesn't throw for *all* shader compile errors, so simplify things an throw for none.
 			Configuration.ThrowOnShaderCompileError = false;
 
-			var includeHandler = includeLookup != null ? new IncludeHandler(includeLookup) : null;
+			var includeHandler = new IncludeHandler(includeLookup, null);
 			using (var compilationResult = ShaderBytecode.Compile(source, entryPoint, profile, ShaderFlags.None, EffectFlags.None, defines, includeHandler))
 			{
 				// Don't check HasErrors or the status code, since apparent they sometimes
 				// indicate succes even when the compile failed!
 				if (compilationResult.Bytecode == null)
 				{
-					throw TranslateErrors(compilationResult, "<string>", includeLookup);
+					throw TranslateErrors(compilationResult, "<string>", includeHandler);
 				}
 
-				var includedFiles = includeHandler != null ? includeHandler.IncludedFiles : Enumerable.Empty<IncludedFile>();
-				return new Shader(device, profile, includedFiles, compilationResult.Bytecode);
+				return new Shader(device, profile, compilationResult.Bytecode);
 			}
 		}
 
-		private static Exception TranslateErrors(CompilationResult result, string baseFilename, Func<string, string> includeLookup)
+		private static Exception TranslateErrors(CompilationResult result, string baseFilename, IncludeHandler includeHandler)
 		{
 			// The shader compiler error messages contain the name used to
 			// include the file, rather than the full path, so we convert them back
@@ -85,7 +87,11 @@ namespace ShaderUnit.Rendering.Shaders
 				else
 				{
 					// Otherwise run it through the include lookup function again.
-					path = includeLookup(matchedFile);
+					if (!includeHandler.IncludedFiles.TryGetValue(matchedFile, out path))
+					{
+						// Error came from a file that was not included. Should never happen.
+						throw new ShaderUnitException("Internal error: shader reported error from file that was not included.");
+					}
 				}
 
 				// Add back the line an column numbers.
@@ -100,27 +106,53 @@ namespace ShaderUnit.Rendering.Shaders
 		// Class for handling include file lookups.
 		private class IncludeHandler : CallbackBase, Include
 		{
-			private Func<string, string> includeLookup;
+			private readonly Func<string, string> _lookupFunc;
+			private readonly string _baseDir;
 
-			private List<IncludedFile> _includedFiles = new List<IncludedFile>();
-			public IEnumerable<IncludedFile> IncludedFiles => _includedFiles;
+			private readonly Dictionary<string, string> _includedFiles = new Dictionary<string, string>();
+			public IReadOnlyDictionary<string, string> IncludedFiles => _includedFiles;
 
-			public IncludeHandler(Func<string, string> includeLookup)
+			public IncludeHandler(Func<string, string> includeLookup, string baseFilename)
 			{
-				this.includeLookup = includeLookup;
+				_lookupFunc = includeLookup;
+				_baseDir = Path.GetDirectoryName(baseFilename);
 			}
 
 			// Include interface.
 			public Stream Open(IncludeType type, string filename, Stream parentStream)
 			{
-				// Find full path.
-				var path = includeLookup(filename);
+				// Check for relative include first
+				string path = null;
+				if (type == IncludeType.Local)
+				{
+					var parentFileStream = parentStream as FileStream;
+					if (parentFileStream != null)
+					{
+						// Look relative to the parent file.
+						path = Path.Combine(Path.GetDirectoryName(parentFileStream.Name), filename);
+					}
+					else if (_baseDir != null)
+					{
+						// No parent, so parent is the base file.
+						path = Path.Combine(_baseDir, filename);
+					}
+				}
 
-				// Remember that we included this file.
-				_includedFiles.Add(new IncludedFile { SourceName = filename, ResolvedFile = path });
+				if (!File.Exists(path))
+				{
+					// Path is not relative, or wasn't found in the relative location, so try global lookup.
+					path = _lookupFunc(filename);
+				}
 
-				// Open file stream.
-				return new FileStream(path, FileMode.Open, FileAccess.Read);
+				if (File.Exists(path))
+				{
+					// Remember that we included this file.
+					_includedFiles.Add(filename, path);
+
+					// Open file stream.
+					return new FileStream(path, FileMode.Open, FileAccess.Read);
+				}
+				return null;
 			}
 
 			public void Close(Stream stream)

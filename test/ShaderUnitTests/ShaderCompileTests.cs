@@ -31,20 +31,18 @@ namespace ShaderUnitTests
 		}
 
 		[TestCase("AbsoluteIncluder.hlsl")]
-		[TestCase("RelativeIncluder.hlsl", Ignore = "Relative includes currently broken")]
-		[TestCase("NestedRelativeIncluder.hlsl", Ignore = "Relative includes currently broken")]
+		[TestCase("RelativeIncluder.hlsl")]
+		[TestCase("NestedRelativeIncluder.hlsl")]
 		public void FileWithIncludeCompiles(string filename)
 		{
 			var shader = harness.RenderInterface.CompileShader("Shaders/" + filename, "entry", "cs_4_0");
 			Assert.That(shader, Is.Not.Null);
-
-			// TODO: Assert included files.
 		}
 
 		[TestCase("MissingFile.hlsl", "Could not find shader file")]
 		[TestCase("SyntaxError.hlsl", @"test\ShaderUnitTests\Assets\Shaders/Errors/SyntaxError.hlsl(3,1): error X3000: syntax error: unexpected token '}'")]
 		[TestCase("IdentifierNotFound.hlsl", @"test\ShaderUnitTests\Assets\Shaders/Errors/IdentifierNotFound.hlsl(3,9-19): error X3004: undeclared identifier 'nonExistant'")]
-		[TestCase("ErrorIncluder.hlsl", @"test\ShaderUnitTests\Assets\Shaders/Errors/ErrorIncludee.hlsl(5,1): error X3000: syntax error: unexpected token '}'", Ignore = "Relative includes currently broken")]
+		[TestCase("ErrorIncluder.hlsl", @"test\ShaderUnitTests\Assets\Shaders\Errors\ErrorIncludee.hlsl(5,1): error X3000: syntax error: unexpected token '}'")]
 		[TestCase("MissingEntryPoint.hlsl", "error X3501: 'entry': entrypoint not found")]
 		public void ShaderWithErrorThrows(string filename, string errorMessage)
 		{

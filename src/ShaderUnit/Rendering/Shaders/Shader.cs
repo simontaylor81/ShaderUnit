@@ -16,14 +16,12 @@ namespace ShaderUnit.Rendering.Shaders
 {
 	class Shader : IShader, IDisposable
 	{
-		internal Shader(Device device, string profile, IEnumerable<IncludedFile> includedFiles, ShaderBytecode bytecode)
+		internal Shader(Device device, string profile, ShaderBytecode bytecode)
 		{
 			if (bytecode == null)
 			{
 				throw new ArgumentNullException(nameof(bytecode));
 			}
-
-			IncludedFiles = includedFiles;
 
 			// Create the shader object of the appropriate type.
 			switch (profile.Substring(0, 2))
@@ -130,9 +128,6 @@ namespace ShaderUnit.Rendering.Shaders
 
 		// Frequency (i.e. type) of shader.
 		public ShaderFrequency Frequency { get; }
-
-		// List of files that were included by this shader.
-		public IEnumerable<IncludedFile> IncludedFiles { get; }
 
 		private Tuple<int, int, int> _threadGroupSize;
 		public Tuple<int, int, int> ThreadGroupSize
