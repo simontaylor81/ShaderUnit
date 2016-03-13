@@ -9,7 +9,6 @@ using SharpDX;
 using ShaderUnit.Interfaces;
 using ShaderUnit.Util;
 using DirectXTexNet;
-using System.Runtime.InteropServices;
 
 namespace ShaderUnit.Rendering.Resources
 {
@@ -68,7 +67,7 @@ namespace ShaderUnit.Rendering.Resources
 		// Create with given contents.
 		public static Texture Create<T>(Device device, int width, int height, Format format, IEnumerable<T> contents, bool generateMips) where T : struct
 		{
-			if (format.Size() != Marshal.SizeOf<T>())
+			if (format.Size() != MarshalUtil.SizeOf<T>())
 			{
 				throw new ShaderUnitException($"Data of type {typeof(T).ToString()} is not suitable for texture format {format.ToString()}.");
 			}

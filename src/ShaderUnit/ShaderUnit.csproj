@@ -103,11 +103,17 @@
       <DependentUpon>Vec.tt</DependentUpon>
     </Compile>
     <Compile Include="Rendering\Shaders\ShaderCompiler.cs" />
+    <Compile Include="TestRenderer\HlslTypeConversion.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>HlslTypeConversion.tt</DependentUpon>
+    </Compile>
     <Compile Include="Util\CompositeDisposable.cs" />
     <Compile Include="Util\DictionaryExtensions.cs" />
     <Compile Include="Util\DisposableUtil.cs" />
     <Compile Include="Util\Extensions.cs" />
     <Compile Include="Util\IWorkspace.cs" />
+    <Compile Include="Util\MarshalUtil.cs" />
     <Compile Include="Util\NumericsUtil.cs" />
     <Compile Include="Util\PathUtils.cs" />
     <Compile Include="Core\ShaderUnitException.cs" />
@@ -188,6 +194,10 @@
     <Content Include="Maths\Vec.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Vec.cs</LastGenOutput>
+    </Content>
+    <Content Include="TestRenderer\HlslTypeConversion.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>HlslTypeConversion.cs</LastGenOutput>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

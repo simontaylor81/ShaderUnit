@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using ShaderUnit.Interfaces;
+using ShaderUnit.Util;
 using SharpDX;
 using SharpDX.Direct3D11;
 
@@ -25,7 +25,7 @@ namespace ShaderUnit.Rendering.Resources
 		{
 			using (var initialData = contents.ToDataStream())
 			{
-				return new Buffer(device, (int)initialData.Length, Marshal.SizeOf(typeof(T)), initialData);
+				return new Buffer(device, (int)initialData.Length, MarshalUtil.SizeOf<T>(), initialData);
 			}
 		}
 
@@ -72,7 +72,7 @@ namespace ShaderUnit.Rendering.Resources
 		{
 			DataStream stream;
 			_buffer.Device.ImmediateContext.MapSubresource(_buffer, 0, MapMode.Read, MapFlags.None, out stream);
-			return stream.ReadRange<T>((int)(stream.Length / Marshal.SizeOf(typeof(T))));
+			return stream.ReadRange<T>((int)(stream.Length / MarshalUtil.SizeOf<T>()));
 		}
 	}
 }

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using ShaderUnit;
+using ShaderUnit.Maths;
 
 namespace ShaderUnitTests
 {
@@ -29,6 +30,16 @@ namespace ShaderUnitTests
 			new object[] { "float3", new Vector3(1.0f, 2.0f, 3.0f) },
 			new object[] { "float4", new Vector4(1.0f, 2.0f, 3.0f, 4.0f) },
 			new object[] { "float4x4", new Matrix4x4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16) },
+			new object[] { "float2", new Vec2<float>(1.0f, 2.0f) },
+			new object[] { "float3", new Vec3<float>(1.0f, 2.0f, 3.0f) },
+			new object[] { "float4", new Vec4<float>(1.0f, 2.0f, 3.0f, 4.0f) },
+			new object[] { "int2", new Vec2<int>(1, 2) },
+			new object[] { "int3", new Vec3<int>(1, 2, 3) },
+			new object[] { "int4", new Vec4<int>(1, 2, 3, 4) },
+			new object[] { "uint2", new Vec2<uint>(1, 2) },
+			new object[] { "uint3", new Vec3<uint>(1, 2, 3) },
+			new object[] { "uint4", new Vec4<uint>(1, 2, 3, 4) },
+			new object[] { "float4x4", new Matrix4x4<float>(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16) },
 		};
 
 		[Test, TestCaseSource(nameof(ParamTypeCases))]
@@ -48,6 +59,10 @@ namespace ShaderUnitTests
 			new object[] { "float3", new Vector3(0, 0, 1.0f) },
 			new object[] { "float4", new Vector4(0, 0, 0, 1.0f) },
 			new object[] { "float4x4", new Matrix4x4(0, 0, 0, 0, 0, 0, 0, 1.0f, 0, 0, 0, 0, 0, 0, 0, 0) },
+			new object[] { "float2", new Vec2<float>(0, 1.0f) },
+			new object[] { "float3", new Vec3<float>(0, 0, 1.0f) },
+			new object[] { "float4", new Vec4<float>(0, 0, 0, 1.0f) },
+			new object[] { "float4x4", new Matrix4x4<float>(0, 0, 0, 0, 0, 0, 0, 1.0f, 0, 0, 0, 0, 0, 0, 0, 0) },
 		};
 	}
 }

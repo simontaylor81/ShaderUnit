@@ -73,7 +73,7 @@ namespace ShaderUnit.Rendering.Shaders
 		// Get the current value of the variable.
 		public T GetValue<T>() where T : struct
 		{
-			if (Marshal.SizeOf(typeof(T)) != data.Length)
+			if (MarshalUtil.SizeOf<T>() != data.Length)
 				throw new ArgumentException("Given size does not match shader variable size.");
 
 			data.Position = 0;
@@ -83,7 +83,7 @@ namespace ShaderUnit.Rendering.Shaders
 		// Set the value of the variable.
 		public void SetValue<T>(T value) where T : struct
 		{
-			if (Marshal.SizeOf(typeof(T)) < data.Length)
+			if (MarshalUtil.SizeOf<T>() < data.Length)
 				throw new ArgumentException(String.Format("Cannot set shader variable '{0}': given value is the wrong size.", Name));
 
 			data.Position = 0;
@@ -95,7 +95,7 @@ namespace ShaderUnit.Rendering.Shaders
 		// Get the current value of an individual component of the array.
 		public T GetComponent<T>(int index) where T : struct
 		{
-			int componentSize = Marshal.SizeOf(typeof(T));
+			int componentSize = MarshalUtil.SizeOf<T>();
 			if (componentSize * (index + 1) > data.Length)
 				throw new IndexOutOfRangeException();
 
@@ -106,7 +106,7 @@ namespace ShaderUnit.Rendering.Shaders
 		// Get the current value of an individual component of the array.
 		public void SetComponent<T>(int index, T value) where T : struct
 		{
-			int componentSize = Marshal.SizeOf(typeof(T));
+			int componentSize = MarshalUtil.SizeOf<T>();
 			if (componentSize * (index + 1) > data.Length)
 				throw new IndexOutOfRangeException();
 
