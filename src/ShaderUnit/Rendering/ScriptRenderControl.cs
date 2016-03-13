@@ -112,9 +112,13 @@ namespace ShaderUnit.Rendering
 			return AddResource(texture);
 		}
 
-		// Create a structured buffer.
+		// Create a structured buffer with the given contents.
 		public IBuffer CreateStructuredBuffer<T>(IEnumerable<T> contents, bool uav = false) where T : struct =>
 			AddResource(Resources.Buffer.CreateStructured(_device.Device, uav, contents));
+
+		// Create a structure buffer with the given element size and stride, with undefined contents.
+		public IBuffer CreateStructuredBuffer(int sizeInBytes, int elementStride, bool uav = false) =>
+			AddResource(new Resources.Buffer(_device.Device, sizeInBytes, elementStride, uav, null));
 
 		public void Dispose()
 		{

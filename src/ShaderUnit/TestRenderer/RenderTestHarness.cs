@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using ShaderUnit.Interfaces;
 using ShaderUnit.Interfaces.Shader;
@@ -74,8 +75,9 @@ namespace ShaderUnit.TestRenderer
 		public IEnumerable<T> DispatchToBuffer<T>(IShader cs, string outBufferVariable, Tuple<int, int, int> size) where T : struct
 		{
 			// Create buffer to hold results.
-			var numElements = size.Item1 * size.Item2 * size.Item3;
-			var outputBuffer = RenderInterface.CreateStructuredBuffer(new T[numElements], uav: true);	// TODO: Added interface for creating uninitialised buffer.
+			var bufferStride = Marshal.SizeOf<T>();
+			var bufferSize = size.Item1 * size.Item2 * size.Item3 * bufferStride;
+			var outputBuffer = RenderInterface.CreateStructuredBuffer(bufferSize, bufferStride, uav: true);
 			cs.FindUavVariable(outBufferVariable).Set(outputBuffer);
 
 			int numThreadGroupsX = DivideCeil(size.Item1, cs.ThreadGroupSize.Item1);
