@@ -35,10 +35,10 @@ namespace ShaderUnit.Interfaces
 		ITexture2D CreateTexture2D<T>(int width, int height, Format format, IEnumerable<T> contents, bool generateMips = false) where T : struct;
 
 		// Create a structured buffer with the given contents.
-		IBuffer CreateStructuredBuffer<T>(IEnumerable<T> contents, bool uav = false) where T : struct;
+		IBuffer CreateStructuredBuffer<T>(IEnumerable<T> contents) where T : struct;
 
 		// Create a structure buffer with the given element size and stride, with undefined contents.
-		IBuffer CreateStructuredBuffer(int sizeInBytes, int elementStride, bool uav = false);
+		IBuffer CreateStructuredBuffer(int sizeInBytes, int elementStride);
 
 		// Load a texture from a file.
 		ITexture2D LoadTexture(string path, object generateMips = null);

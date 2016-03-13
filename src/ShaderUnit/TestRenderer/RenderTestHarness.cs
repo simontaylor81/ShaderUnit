@@ -77,7 +77,7 @@ namespace ShaderUnit.TestRenderer
 			// Create buffer to hold results.
 			var bufferStride = Marshal.SizeOf<T>();
 			var bufferSize = size.Item1 * size.Item2 * size.Item3 * bufferStride;
-			var outputBuffer = RenderInterface.CreateStructuredBuffer(bufferSize, bufferStride, uav: true);
+			var outputBuffer = RenderInterface.CreateStructuredBuffer(bufferSize, bufferStride);
 			cs.FindUavVariable(outBufferVariable).Set(outputBuffer);
 
 			int numThreadGroupsX = DivideCeil(size.Item1, cs.ThreadGroupSize.Item1);

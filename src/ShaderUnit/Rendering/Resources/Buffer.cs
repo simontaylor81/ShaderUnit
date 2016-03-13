@@ -21,15 +21,15 @@ namespace ShaderUnit.Rendering.Resources
 		public UnorderedAccessView UAV { get; }
 
 		// Create a structured buffer with typed initial data, for when calling from C# directly.
-		public static Buffer CreateStructured<T>(Device device, bool uav, IEnumerable<T> contents) where T : struct
+		public static Buffer CreateStructured<T>(Device device, IEnumerable<T> contents) where T : struct
 		{
 			using (var initialData = contents.ToDataStream())
 			{
-				return new Buffer(device, (int)initialData.Length, Marshal.SizeOf(typeof(T)), uav, initialData);
+				return new Buffer(device, (int)initialData.Length, Marshal.SizeOf(typeof(T)), initialData);
 			}
 		}
 
-		public Buffer(Device device, int sizeInBytes, int stride, bool uav, DataStream initialData)
+		public Buffer(Device device, int sizeInBytes, int stride, DataStream initialData)
 		{
 			var desc = new BufferDescription();
 
@@ -37,13 +37,8 @@ namespace ShaderUnit.Rendering.Resources
 			desc.Usage = ResourceUsage.Default;
 			desc.CpuAccessFlags = CpuAccessFlags.Read;  // Need this for result verification.
 			desc.OptionFlags = ResourceOptionFlags.BufferStructured;
+			desc.BindFlags = BindFlags.ShaderResource | BindFlags.UnorderedAccess;
 			desc.StructureByteStride = stride;
-
-			desc.BindFlags = BindFlags.ShaderResource;
-			if (uav)
-			{
-				desc.BindFlags |= BindFlags.UnorderedAccess;
-			}
 
 			if (initialData != null)
 			{
@@ -58,11 +53,8 @@ namespace ShaderUnit.Rendering.Resources
 			// Create SRV for reading from the buffer.
 			SRV = new ShaderResourceView(device, _buffer);
 
-			// Create UAV is required.
-			if (uav)
-			{
-				UAV = new UnorderedAccessView(device, _buffer);
-			}
+			// Create UAV.
+			UAV = new UnorderedAccessView(device, _buffer);
 
 			ElementCount = sizeInBytes / stride;
 			SizeInBytes = sizeInBytes;
