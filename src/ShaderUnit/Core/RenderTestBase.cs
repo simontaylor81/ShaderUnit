@@ -27,11 +27,6 @@ namespace ShaderUnit
 			_assetDir = PathUtils.FindPathInTree(TestCaseAssemblyDir, assetDirectory);
 		}
 
-		[SetUp]
-		public void Setup()
-		{
-		}
-
 		[TearDown]
 		public async Task TearDown()
 		{
