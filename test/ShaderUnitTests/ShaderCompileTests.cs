@@ -31,7 +31,7 @@ namespace ShaderUnitTests
 		}
 
 		[Test]
-		public void FileWithImportCompiles()
+		public void FileWithIncludeCompiles()
 		{
 			var shader = harness.RenderInterface.CompileShader("Includer.hlsl", "entry", "cs_4_0");
 			Assert.That(shader, Is.Not.Null);
