@@ -38,6 +38,10 @@ namespace ShaderUnit.Interfaces.Shader
 		// Frequency (i.e. type) of shader.
 		ShaderFrequency Frequency { get; }
 
+		// Number of threads in thread group in x, y, and z dimensions.
+		// Only valid for compute shaders.
+		Tuple<int, int, int> ThreadGroupSize { get; }
+
 		// List of files that were included by this shader.
 		IEnumerable<IncludedFile> IncludedFiles { get; }
 	}

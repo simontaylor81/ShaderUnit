@@ -13,8 +13,8 @@ namespace ShaderUnit.Interfaces
 		IRenderInterface RenderInterface { get; }
 
 		void Dispatch(FrameCallback callback);
-		IEnumerable<T> DispatchToBuffer<T>(IShader cs, string outBufferVariable, int size, int shaderNumThreads) where T : struct;
-		IEnumerable<T> DispatchToBuffer<T>(IShader cs, string outBufferVariable, Tuple<int, int, int> size, Tuple<int, int, int> shaderNumThreads) where T : struct;
+		IEnumerable<T> DispatchToBuffer<T>(IShader cs, string outBufferVariable, int size) where T : struct;
+		IEnumerable<T> DispatchToBuffer<T>(IShader cs, string outBufferVariable, Tuple<int, int, int> size) where T : struct;
 		T ExecuteShaderFunction<T>(string shaderFile, string function, params object[] parameters) where T : struct;
 	}
 

@@ -16,7 +16,7 @@ namespace ShaderUnit.SampleTests
 			var harness = CreateComputeHarness();
 			var cs = harness.RenderInterface.CompileShader("ComputeTest.hlsl", "WriteToUAV", "cs_5_0");
 
-			var result = harness.DispatchToBuffer<float>(cs, "OutUAV", Tuple.Create(16, 1, 1), Tuple.Create(16, 1, 1));
+			var result = harness.DispatchToBuffer<float>(cs, "OutUAV", Tuple.Create(16, 1, 1));
 			Assert.That(result, Is.EqualTo(Enumerable.Range(0, 16).Select(i => 2.0f * i + 10.0f)));
 		}
 
@@ -33,7 +33,7 @@ namespace ShaderUnit.SampleTests
 			var inputBuffer = ri.CreateStructuredBuffer(input);
 			cs.FindResourceVariable("InBuffer").Set(inputBuffer);
 
-			var result = harness.DispatchToBuffer<float>(cs, "OutUAV", Tuple.Create(16, 1, 1), Tuple.Create(16, 1, 1));
+			var result = harness.DispatchToBuffer<float>(cs, "OutUAV", Tuple.Create(16, 1, 1));
 			Assert.That(result, Is.EqualTo(input.Select(x => 2.0f * x)));
 		}
 
@@ -54,7 +54,7 @@ namespace ShaderUnit.SampleTests
 			var inputBuffer = ri.CreateStructuredBuffer(input);
 			cs.FindResourceVariable("InBufferComplex").Set(inputBuffer);
 
-			var result = harness.DispatchToBuffer<float>(cs, "OutUAV", Tuple.Create(16, 1, 1), Tuple.Create(16, 1, 1));
+			var result = harness.DispatchToBuffer<float>(cs, "OutUAV", Tuple.Create(16, 1, 1));
 			Assert.That(result, Is.EqualTo(input.Select(x => x.Vec2.X + x.Vec2.Y + x.Uint)));
 		}
 

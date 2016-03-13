@@ -26,7 +26,7 @@ namespace ShaderUnitTests
 			// Dispatch CS to read texture contents.
 			var cs = _testHarness.RenderInterface.CompileShader("ReadTexture.hlsl", "Main", "cs_4_0");
 			cs.FindResourceVariable("Texture").Set(texture);
-			return _testHarness.DispatchToBuffer<Vector4>(cs, "OutBuffer", Tuple.Create(texture.Width, texture.Height, 1), Tuple.Create(1, 1, 1));
+			return _testHarness.DispatchToBuffer<Vector4>(cs, "OutBuffer", Tuple.Create(texture.Width, texture.Height, 1));
 		}
 
 		[Test]

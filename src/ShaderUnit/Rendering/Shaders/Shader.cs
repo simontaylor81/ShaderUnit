@@ -72,6 +72,13 @@ namespace ShaderUnit.Rendering.Shaders
 					.Where(desc => IsUav(desc.Type))
 					.Select(desc => new ShaderUavVariable(desc, Frequency))
 					.ToArray();
+
+				if (Frequency == ShaderFrequency.Compute)
+				{
+					int sizeX, sizeY, sizeZ;
+					reflection.GetThreadGroupSize(out sizeX, out sizeY, out sizeZ);
+					_threadGroupSize = Tuple.Create(sizeX, sizeY, sizeZ);
+				}
 			}
 		}
 
@@ -167,6 +174,19 @@ namespace ShaderUnit.Rendering.Shaders
 
 		// List of files that were included by this shader.
 		public IEnumerable<IncludedFile> IncludedFiles { get; }
+
+		private Tuple<int, int, int> _threadGroupSize;
+		public Tuple<int, int, int> ThreadGroupSize
+		{
+			get
+			{
+				if (Frequency != ShaderFrequency.Compute)
+				{
+					throw new InvalidOperationException("ThreadGroupSize is only available for compute shaders.");
+				}
+				return _threadGroupSize;
+			}
+		}
 
 		private static Exception TranslateErrors(CompilationResult result, string baseFilename, Func<string, string> includeLookup)
 		{
