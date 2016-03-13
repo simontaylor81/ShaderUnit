@@ -61,10 +61,17 @@ namespace ShaderUnit.TestRenderer
 			});
 		}
 
+		// Dispatch with a frame callback.
 		public void Dispatch(FrameCallback callback)
 		{
 			// Run the renderer to trigger compute shaders.
 			_renderer.Dispatch(_src, callback);
+		}
+
+		// Dispatch with a single compute shader.
+		public void Dispatch(IShader cs, int numThreadGroupsX, int numThreadGroupsY, int numThreadGroupsZ)
+		{
+			Dispatch(context => context.Dispatch(cs, numThreadGroupsX, numThreadGroupsY, numThreadGroupsZ));
 		}
 
 		// Simple wrapper for the common 1D case.
@@ -85,10 +92,7 @@ namespace ShaderUnit.TestRenderer
 			int numThreadGroupsZ = DivideCeil(size.Item3, cs.ThreadGroupSize.Item3);
 
 			// Render a frame to dispatch the compute shader.
-			Dispatch(context =>
-			{
-				context.Dispatch(cs, numThreadGroupsX, numThreadGroupsY, numThreadGroupsY);
-			});
+			Dispatch(cs, numThreadGroupsX, numThreadGroupsY, numThreadGroupsZ);
 
 			// Read results back from the buffer
 			return outputBuffer.GetContents<T>();
