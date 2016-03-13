@@ -46,23 +46,34 @@ namespace ShaderUnit
 			_imageResult = null;
 		}
 
-		protected IComputeHarness CreateComputeHarness()
+		/// <summary>
+		/// Create a test harness for executing compute shaders.
+		/// </summary>
+		/// <param name="useWarp">Whether to use the WARP software rasterizer. Defaults to true to avoid per-GPU differences.</param>
+		protected IComputeHarness CreateComputeHarness(bool useWarp = true)
 		{
 			if (_harness != null)
 			{
 				throw new ShaderUnitException("Can only create one harness per test run.");
 			}
-			_harness = new RenderTestHarness(new ShaderUnitRenderer(), _assetDir);
+			_harness = new RenderTestHarness(new ShaderUnitRenderer(useWarp: useWarp), _assetDir);
 			return _harness;
 		}
 
-		protected IRenderHarness CreateRenderHarness(int width, int height)
+		/// <summary>
+		/// Create a test harness for rendering an image.
+		/// </summary>
+		/// <param name="width">The width of the resulting image.</param>
+		/// <param name="height">The height of the resulting image.</param>
+		/// <param name="useWarp">Whether to use the WARP software rasterizer. Defaults to true to avoid per-GPU differences.</param>
+		/// <returns></returns>
+		protected IRenderHarness CreateRenderHarness(int width, int height, bool useWarp = true)
 		{
 			if (_harness != null)
 			{
 				throw new ShaderUnitException("Can only create one harness per test run.");
 			}
-			_harness = new RenderTestHarness(new ShaderUnitRenderer(width, height), _assetDir);
+			_harness = new RenderTestHarness(new ShaderUnitRenderer(width, height, useWarp: useWarp), _assetDir);
 			return _harness;
 		}
 

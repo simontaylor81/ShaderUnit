@@ -29,20 +29,20 @@ namespace ShaderUnit.TestRenderer
 		public RenderDevice Device => device;
 
 		// Create test renderer for compute only.
-		public ShaderUnitRenderer()
+		public ShaderUnitRenderer(bool useWarp)
 		{
 			_width = 0;
 			_height = 0;
 
 			// Create a device without a swap chain for headless rendering.
 			// Use WARP software rasterizer to avoid per-GPU differences.
-			device = new RenderDevice(useWarp: true);
+			device = new RenderDevice(useWarp: useWarp);
 
 			disposables = new CompositeDisposable(device);
 		}
 
-		public ShaderUnitRenderer(int width, int height)
-			: this()
+		public ShaderUnitRenderer(int width, int height, bool useWarp)
+			: this(useWarp)
 		{
 			if (width <= 0 || height <= 0)
 			{
