@@ -39,6 +39,10 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Interactive, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Ix-Main.1.2.5\lib\net45\System.Interactive.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Net.Http.Extensions, Version=2.2.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Net.Http.2.2.29\lib\net45\System.Net.Http.Extensions.dll</HintPath>
       <Private>True</Private>
@@ -63,6 +67,7 @@
   <ItemGroup>
     <Compile Include="ShaderCompileTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TextureTests.cs" />
     <Compile Include="TypeTests.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -83,6 +88,7 @@
     <Content Include="Assets\Shaders\Errors\SyntaxError.hlsl" />
     <Content Include="Assets\Shaders\Includee.hlsl" />
     <Content Include="Assets\Shaders\Includer.hlsl" />
+    <Content Include="Assets\Shaders\ReadTexture.hlsl" />
     <Content Include="Assets\Shaders\TypeTests.hlsl" />
     <Content Include="Assets\Shaders\ValidShaders.hlsl" />
   </ItemGroup>

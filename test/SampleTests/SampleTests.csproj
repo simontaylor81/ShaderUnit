@@ -81,6 +81,17 @@
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\Shaders\ComputeTest.hlsl" />
+    <Content Include="Assets\Shaders\ConstantColour.hlsl" />
+    <Content Include="Assets\Shaders\FullscreenTexture.hlsl" />
+    <Content Include="Assets\Shaders\UnitTests.hlsl" />
+    <Content Include="Assets\Textures\Cubemap.dds" />
+    <Content Include="Assets\Textures\ThisIsATest.bmp" />
+    <Content Include="Assets\Textures\ThisIsATest.jpg" />
+    <Content Include="Assets\Textures\ThisIsATest.png" />
+    <Content Include="Assets\Textures\ThisIsATest.tga" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
