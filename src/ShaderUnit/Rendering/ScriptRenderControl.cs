@@ -100,7 +100,6 @@ namespace ShaderUnit.Rendering
 		public void Dispose()
 		{
 			DisposableUtil.DisposeList(renderTargets);
-			DisposableUtil.DisposeList(textures);
 			DisposableUtil.DisposeList(_resources);
 
 			_device = null;
@@ -161,14 +160,6 @@ namespace ShaderUnit.Rendering
 			{
 				return _device.GlobalResources.DefaultNormalTexture;
 			}
-			else if (handle is TextureHandle)
-			{
-				// Bind the variable to a texture's SRV.
-				int texIndex = ((TextureHandle)handle).index;
-				System.Diagnostics.Debug.Assert(texIndex >= 0 && texIndex < textures.Count);
-
-				return textures[texIndex];
-			}
 
 			return null;
 		}
@@ -190,9 +181,6 @@ namespace ShaderUnit.Rendering
 
 
 		private RenderDevice _device;
-
-		// Script-generated resources.
-		private List<Texture> textures = new List<Texture>();
 
 		// List of resource to be disposed of when reseting or disposing.
 		private List<IDisposable> _resources = new List<IDisposable>();

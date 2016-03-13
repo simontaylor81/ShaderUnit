@@ -33,23 +33,6 @@ namespace ShaderUnit.Rendering
 			=> index;
 	}
 
-	// Handle to a shader.
-	internal class ShaderHandle : HandleBase
-	{
-		internal ShaderHandle(int index)
-			: base(index)
-		{
-		}
-	}
-
-	// Handle to a texture.
-	internal class TextureHandle : HandleBase
-	{
-		internal TextureHandle(int index)
-			: base(index)
-		{
-		}
-	}
 
 	// Handle to a render traget.
 	internal class RenderTargetHandle : HandleBase
