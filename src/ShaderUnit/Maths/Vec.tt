@@ -1,0 +1,57 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+namespace ShaderUnit.Maths
+{
+<#
+for(int size = 2; size <= 4; size++)
+{
+#>
+	public struct Vec<#= size #><T>
+	{
+<# for (int component = 0; component < size; component++)
+	{
+#>
+		public T <#= ComponentName(component) #>;
+<#
+	}
+#>
+
+		public Vec<#= size #>(<#= ComponentArgList(size) #>)
+		{
+<# for (int component = 0; component < size; component++)
+	{
+#>
+			this.<#= ComponentName(component) #> = <#= ComponentName(component) #>;
+<#
+	}
+#>
+		}
+	}
+
+<#
+} 
+#>
+}
+
+<#+
+private string ComponentName(int index)
+{
+	var components = new[] { "x", "y", "z", "w" };
+	return components[index];
+}
+
+private IEnumerable<string> Components(int size)
+{
+	return Enumerable.Range(0, size)
+		.Select(x => ComponentName(x));
+}
+
+private string ComponentArgList(int size)
+{
+	return string.Join(", ", Components(size).Select(x => "T " + x));
+}
+#>
